@@ -15,6 +15,8 @@
  */
 package de.gerdiproject.harvest.etls.extractors;
 
+import org.jsoup.nodes.Document;
+
 import lombok.Data;
 
 /**
@@ -27,4 +29,24 @@ import lombok.Data;
 public class ClinicalTrialsVO
 {
     // TODO add fields here, or replace this class with whatever suits your needs
+    private int id;
+    private Document viewPage;
+
+
+    public int getId()
+    {
+        return id;
+    }
+    public void setId(int id)
+    {
+        this.id = id;
+    }
+    public Document getViewPage()
+    {
+        return viewPage;
+    }
+    public void setViewPage(Document viewPage)
+    {
+        this.viewPage = viewPage;
+    }
 }

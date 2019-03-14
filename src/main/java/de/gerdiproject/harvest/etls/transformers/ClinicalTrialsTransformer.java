@@ -14,10 +14,35 @@
  * limitations under the License.
  */
 package de.gerdiproject.harvest.etls.transformers;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import de.gerdiproject.harvest.etls.AbstractETL;
 import de.gerdiproject.harvest.etls.extractors.ClinicalTrialsVO;
+
 import de.gerdiproject.json.datacite.DataCiteJson;
+import de.gerdiproject.json.datacite.Date;
+import de.gerdiproject.json.datacite.Description;
+import de.gerdiproject.json.datacite.RelatedIdentifier;
+import de.gerdiproject.json.datacite.Subject;
+import de.gerdiproject.json.datacite.Title;
+import de.gerdiproject.json.datacite.abstr.AbstractDate;
+import de.gerdiproject.json.datacite.enums.DateType;
+import de.gerdiproject.json.datacite.enums.DescriptionType;
+import de.gerdiproject.json.datacite.enums.RelatedIdentifierType;
+import de.gerdiproject.json.datacite.enums.RelationType;
+import de.gerdiproject.json.datacite.extension.generic.ResearchData;
+import de.gerdiproject.json.datacite.extension.generic.WebLink;
+import de.gerdiproject.json.datacite.extension.generic.enums.WebLinkType;
+
 
 /**
  * This transformer parses metadata from a {@linkplain ClinicalTrialsVO}
@@ -35,12 +60,16 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
 
     @Override
-    protected DataCiteJson transformElement(ClinicalTrialsVO source)
+    protected DataCiteJson transformElement(ClinicalTrialsVO vo) throws TransformerException
     {
         // create the document
-        final DataCiteJson document = new DataCiteJson(createIdentifier(source));
+        final DataCiteJson document = new DataCiteJson(String.valueOf(vo.getId()));
 
         // TODO add all possible metadata to the document
+        
+        document.addDates(getDates(vo));
+        document.addGeoLocations(getGeoLocations(vo));
+
 
         return document;
     }
@@ -53,9 +82,34 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
      *
      * @return a unique identifier of this document
      */
-    private String createIdentifier(ClinicalTrialsVO source)
+
+    private List<GeoLocation> getGeoLocations(ClinicalTrialsVO vo)
     {
-        // TODO retrieve a unique identifier from the source
-        return source.toString();
+        final List<GeoLocation> geoLocations = new LinkedList<>();
+
+        // get the area name element
+        final Element areaElem = (vo)
+                                 .getViewPage()
+                                 .selectFirst("div.right-margin:containsOwn(Area:) + div.left_margin");
+
+        if (areaElem != null)
+            geoLocations.add(new GeoLocation(areaElem.text()));
+
+        return geoLocations;
+    }
+    private List<AbstractDate> getDates(ClinicalTrialsVO vo)
+    {
+        final List<AbstractDate> dates = new LinkedList<>();
+
+        // retrieve the measurement date selector
+        final Elements study_first_submitted = vo.getViewPage().select("clinical_study");
+
+        // verify that there are dates
+        
+        return dates;
     }
 }
+
+
+
+

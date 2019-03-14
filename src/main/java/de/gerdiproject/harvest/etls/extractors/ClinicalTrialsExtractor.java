@@ -16,7 +16,7 @@
 package de.gerdiproject.harvest.etls.extractors;
 
 import java.util.Iterator;
-
+import org.jsoup.nodes.Document;
 import de.gerdiproject.harvest.etls.AbstractETL;
 import de.gerdiproject.harvest.utils.data.HttpRequester;
 
@@ -68,7 +68,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
     @Override
     public int size()
     {
-        return size;
+        return 999;
     }
 
 
@@ -80,6 +80,18 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
     }
 
 
+    public int getSize()
+    {
+        return size;
+    }
+
+
+    public void setSize(int size)
+    {
+        this.size = size;
+    }
+
+
     /**
      * TODO add a description here
      *
@@ -87,11 +99,14 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
      */
     private class ClinicalTrialsIterator implements Iterator<ClinicalTrialsVO>
     {
+       int id = 0;
+    		   
+      
         @Override
         public boolean hasNext()
         {
             // TODO
-            return false;
+            return id < size();
         }
 
 
@@ -99,7 +114,24 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
         public ClinicalTrialsVO next()
         {
             // TODO
-            return null;
+        	String id_s = Integer.toString(id);
+        	String NCT_id = "NCT" + "0000000000".substring(id_s.length()) + id_s;
+
+            final String url = String.format("https://clinicaltrials.gov/ct2/show/%s?displayxml=true",NCT_id);
+
+            // check if a dataset page exists for the url
+            final Document viewPage = httpRequester.getHtmlFromUrl(url);
+
+            // assemble VO or return null if the dataset does not exist
+            final ClinicalTrialsVO vo =
+                viewPage == null
+                 ? null
+                : new ClinicalTrialsVO(NCT_id, viewPage);
+
+            // increment id for the next request
+            id++;
+            return vo;
+
         }
     }
 }
