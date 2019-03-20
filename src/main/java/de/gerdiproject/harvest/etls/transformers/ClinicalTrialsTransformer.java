@@ -17,22 +17,19 @@ package de.gerdiproject.harvest.etls.transformers;
 
 import de.gerdiproject.harvest.etls.AbstractETL;
 import de.gerdiproject.harvest.etls.extractors.ClinicalTrialsVO;
+import de.gerdiproject.json.datacite.DataCiteJson;
 
 
-
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import de.gerdiproject.json.datacite.DataCiteJson;
-import de.gerdiproject.json.datacite.GeoLocation;
-
-import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+
+
+
+import de.gerdiproject.json.datacite.Title;
+import de.gerdiproject.json.datacite.Description;
+
 
 
 
@@ -54,37 +51,64 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     }
 
 
-    protected DataCiteJson transformElement(Element clinical_study) throws TransformerException
+    @Override
+    protected DataCiteJson transformElement(ClinicalTrialsVO vo) throws TransformerException
     {
         // create the document
-        
-        clinical_study.children();
-        Attributes attributes = clinical_study.attributes();
+        final DataCiteJson document = new DataCiteJson(String.valueOf(vo.getId()));
+        document.setPublisher("U.S. National Library of Medicine");
+        document.addTitles(getTitles(vo));
+        document.addDescriptions(getDescriptions(vo));
        
-        String accession = attributes.get("nct_id");
-        
-        
-        final DataCiteJson document = new DataCiteJson(accession);
-        //DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        //DocumentBuilder db = dbf.newDocumentBuilder();
-        //org.w3c.dom.Document doc = db.parse(new URL(url).openStream());
 
         // TODO add all possible metadata to the document
-        document.setPublisher("U.S. National Library of Medicine");
        
         
-
         return document;
     }
+    private List<Title> getTitles(ClinicalTrialsVO vo)
+    {
+        final List<Title> titlelist = new LinkedList<>();
+
+        // get the title
+        final Element title = vo
+                                 .getViewPage()
+                                 .selectFirst("brief_title");
+
+        if (title != null)
+            titlelist.add(new Title(title.text()));
+       
+
+        return titlelist;
+    }
+    private List<Description> getDescriptions(ClinicalTrialsVO vo)
+    {
+        final List<Description> Descriptionlist = new LinkedList<>();
+
+        final Element descriptions = vo
+                .getViewPage()
+                .selectFirst("detailed_description");
+        
+        if (descriptions != null)
+            Descriptionlist.add(new Description(descriptions.wholeText(), null));
+
+        return Descriptionlist;
+    }
+    
 
 
-	@Override
-	protected DataCiteJson transformElement(ClinicalTrialsVO source) throws TransformerException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    /**
+     * Creates a unique identifier for a document from ClinicalTrials.
+     *
+     * @param source the source object that contains all metadata that is needed
+     *
+     * @return a unique identifier of this document
+     */
+    /*private String createIdentifier(ClinicalTrialsVO vo)
+    {
+        // TODO retrieve a unique identifier from the source
+        return vo.toString();
+    }*/
 }
-
-
 
 

@@ -15,11 +15,7 @@
  */
 package de.gerdiproject.harvest.etls.extractors;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import javax.net.ssl.HttpsURLConnection;
+
 import java.util.Iterator;
 import de.gerdiproject.harvest.utils.data.HttpRequester;
 
@@ -110,7 +106,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
      */
     private class ClinicalTrialsIterator implements Iterator<ClinicalTrialsVO>
     {
-        int id = 0;
+        int id = 99;
 
 
         @Override
@@ -131,43 +127,6 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
             final String url = String.format("https://clinicaltrials.gov/ct2/show/%s?displayxml=true", NCT_id);
 
             // check if a dataset page exists for the url
-          
-            /**URL url = null;
-			try {
-				url = new URL(url1);
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-            URLConnection conn= null;
-			try {
-				conn = url.openConnection();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = null;
-			try {
-				builder = factory.newDocumentBuilder();
-			} catch (ParserConfigurationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-            Document doc = null;
-			try {
-				doc = (Document) builder.parse(conn.getInputStream());
-			} catch (SAXException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-  
-            final Document viewPage = doc;*/
             
             final Document viewPage = httpRequester.getHtmlFromUrl(url);
 
