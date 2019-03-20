@@ -127,14 +127,14 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
             final String url = String.format("https://clinicaltrials.gov/ct2/show/%s?displayxml=true", NCT_id);
 
             // check if a dataset page exists for the url
-            
+
             final Document viewPage = httpRequester.getHtmlFromUrl(url);
 
             // assemble VO or return null if the dataset does not exist
             final ClinicalTrialsVO vo =
                 viewPage == null
                 ? null
-                : new ClinicalTrialsVO();
+                : new ClinicalTrialsVO(id, viewPage);
 
             // increment id for the next request
             id++;

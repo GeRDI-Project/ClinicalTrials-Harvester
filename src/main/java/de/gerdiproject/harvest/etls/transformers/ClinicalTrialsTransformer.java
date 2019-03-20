@@ -59,11 +59,11 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         document.setPublisher("U.S. National Library of Medicine");
         document.addTitles(getTitles(vo));
         document.addDescriptions(getDescriptions(vo));
-       
+
 
         // TODO add all possible metadata to the document
-       
-        
+
+
         return document;
     }
     private List<Title> getTitles(ClinicalTrialsVO vo)
@@ -71,13 +71,11 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final List<Title> titlelist = new LinkedList<>();
 
         // get the title
-        final Element title = vo
-                                 .getViewPage()
-                                 .selectFirst("brief_title");
+        final Element title = vo.getViewPage().selectFirst("brief_title");
 
         if (title != null)
             titlelist.add(new Title(title.text()));
-       
+
 
         return titlelist;
     }
@@ -85,16 +83,14 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     {
         final List<Description> Descriptionlist = new LinkedList<>();
 
-        final Element descriptions = vo
-                .getViewPage()
-                .selectFirst("detailed_description");
-        
+        final Element descriptions = vo.getViewPage().selectFirst("detailed_description");
+
         if (descriptions != null)
             Descriptionlist.add(new Description(descriptions.wholeText(), null));
 
         return Descriptionlist;
     }
-    
+
 
 
     /**
