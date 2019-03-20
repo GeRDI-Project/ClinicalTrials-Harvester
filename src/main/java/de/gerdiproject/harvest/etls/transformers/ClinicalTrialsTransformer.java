@@ -14,34 +14,29 @@
  * limitations under the License.
  */
 package de.gerdiproject.harvest.etls.transformers;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
+
+import de.gerdiproject.harvest.etls.AbstractETL;
+import de.gerdiproject.harvest.etls.extractors.ClinicalTrialsVO;
+
+
+
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import de.gerdiproject.json.datacite.DataCiteJson;
+import de.gerdiproject.json.datacite.GeoLocation;
 
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import de.gerdiproject.harvest.etls.AbstractETL;
-import de.gerdiproject.harvest.etls.extractors.ClinicalTrialsVO;
 
-import de.gerdiproject.json.datacite.DataCiteJson;
-import de.gerdiproject.json.datacite.Date;
-import de.gerdiproject.json.datacite.Description;
-import de.gerdiproject.json.datacite.RelatedIdentifier;
-import de.gerdiproject.json.datacite.Subject;
-import de.gerdiproject.json.datacite.Title;
-import de.gerdiproject.json.datacite.abstr.AbstractDate;
-import de.gerdiproject.json.datacite.enums.DateType;
-import de.gerdiproject.json.datacite.enums.DescriptionType;
-import de.gerdiproject.json.datacite.enums.RelatedIdentifierType;
-import de.gerdiproject.json.datacite.enums.RelationType;
-import de.gerdiproject.json.datacite.extension.generic.ResearchData;
-import de.gerdiproject.json.datacite.extension.generic.WebLink;
-import de.gerdiproject.json.datacite.extension.generic.enums.WebLinkType;
+
+
 
 
 /**
@@ -59,55 +54,35 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     }
 
 
-    @Override
-    protected DataCiteJson transformElement(ClinicalTrialsVO vo) throws TransformerException
+    protected DataCiteJson transformElement(Element clinical_study) throws TransformerException
     {
         // create the document
-        final DataCiteJson document = new DataCiteJson(String.valueOf(vo.getId()));
+        
+        clinical_study.children();
+        Attributes attributes = clinical_study.attributes();
+       
+        String accession = attributes.get("nct_id");
+        
+        
+        final DataCiteJson document = new DataCiteJson(accession);
+        //DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        //DocumentBuilder db = dbf.newDocumentBuilder();
+        //org.w3c.dom.Document doc = db.parse(new URL(url).openStream());
 
         // TODO add all possible metadata to the document
+        document.setPublisher("U.S. National Library of Medicine");
+       
         
-        document.addDates(getDates(vo));
-        document.addGeoLocations(getGeoLocations(vo));
-
 
         return document;
     }
 
 
-    /**
-     * Creates a unique identifier for a document from ClinicalTrials.
-     *
-     * @param source the source object that contains all metadata that is needed
-     *
-     * @return a unique identifier of this document
-     */
-
-    private List<GeoLocation> getGeoLocations(ClinicalTrialsVO vo)
-    {
-        final List<GeoLocation> geoLocations = new LinkedList<>();
-
-        // get the area name element
-        final Element areaElem = (vo)
-                                 .getViewPage()
-                                 .selectFirst("div.right-margin:containsOwn(Area:) + div.left_margin");
-
-        if (areaElem != null)
-            geoLocations.add(new GeoLocation(areaElem.text()));
-
-        return geoLocations;
-    }
-    private List<AbstractDate> getDates(ClinicalTrialsVO vo)
-    {
-        final List<AbstractDate> dates = new LinkedList<>();
-
-        // retrieve the measurement date selector
-        final Elements study_first_submitted = vo.getViewPage().select("clinical_study");
-
-        // verify that there are dates
-        
-        return dates;
-    }
+	@Override
+	protected DataCiteJson transformElement(ClinicalTrialsVO source) throws TransformerException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
 
 
