@@ -24,15 +24,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jsoup.nodes.Element;
-
-
+import org.jsoup.select.Elements;
 
 import de.gerdiproject.json.datacite.Title;
+import de.gerdiproject.json.datacite.abstr.AbstractDate;
+import de.gerdiproject.json.datacite.extension.generic.WebLink;
 import de.gerdiproject.json.datacite.Description;
-
-
-
-
+import de.gerdiproject.json.datacite.GeoLocation;
+import de.gerdiproject.json.datacite.Subject;
+import de.gerdiproject.json.datacite.Date;
+import de.gerdiproject.json.datacite.Contributor;
 
 
 
@@ -59,6 +60,15 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         document.setPublisher("U.S. National Library of Medicine");
         document.addTitles(getTitles(vo));
         document.addDescriptions(getDescriptions(vo));
+        document.addGeoLocations(getGeoLocations(vo));
+        document.addDates(getDates(vo));
+        document.addDates(getlastdate(vo));
+        document.addSubjects(getKeyword(vo));
+        document.addContributors(getsponsors(vo));
+        document.addWebLinks(getlink(vo));
+        
+     
+
 
 
         // TODO add all possible metadata to the document
@@ -72,23 +82,111 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
         // get the title
         final Element title = vo.getViewPage().selectFirst("brief_title");
-
+       // verify that there is data
         if (title != null)
             titlelist.add(new Title(title.text()));
 
 
         return titlelist;
     }
+
+
     private List<Description> getDescriptions(ClinicalTrialsVO vo)
     {
         final List<Description> Descriptionlist = new LinkedList<>();
-
+        // get the description
         final Element descriptions = vo.getViewPage().selectFirst("detailed_description");
-
+        // verify that there is data
         if (descriptions != null)
             Descriptionlist.add(new Description(descriptions.wholeText(), null));
 
         return Descriptionlist;
+    }
+
+
+    private List<GeoLocation> getGeoLocations(ClinicalTrialsVO vo)
+    {
+        final List<GeoLocation> geoLocations = new LinkedList<>();
+
+        // get the area name element
+        final Element areaElem = vo.getViewPage().selectFirst("address");
+        // verify that there is data
+        if (areaElem != null)
+            geoLocations.add(new GeoLocation(areaElem.wholeText()));
+
+        return geoLocations;
+    }
+
+    private List<AbstractDate> getDates(ClinicalTrialsVO vo)
+    {
+        final List<AbstractDate> dates = new LinkedList<>();
+
+        // retrieve the first submitted date
+        final Elements dateElements = vo.getViewPage().select("study_first_submitted");
+
+        // verify that there are dates
+         if (dates != null)
+        	 dates.add(new Date(dateElements.text(), null));
+         
+        return dates;
+    }   
+    private List<AbstractDate> getlastdate(ClinicalTrialsVO vo)
+    {
+        final List<AbstractDate> ldates = new LinkedList<>();
+
+        // retrieve the last updated date
+        final Elements ldateElements = vo.getViewPage().select("last_update_submitted");
+
+        // verify that there are dates
+         if (ldates != null)
+        	 ldates.add(new Date(ldateElements.text(), null));
+         
+        return ldates;
+    }
+    
+    
+    private List<Subject> getKeyword(ClinicalTrialsVO vo)
+    {
+        final List<Subject> keyword = new LinkedList<>();
+
+        // retrieve the keywords
+        final Elements keyElements = vo.getViewPage().select("keyword");
+
+        // verify that there is data
+         if (keyword != null)
+        	 keyword.add(new Subject(keyElements.text(), null));
+         
+        return keyword;
+    }
+    
+    
+    private List<Contributor> getsponsors(ClinicalTrialsVO vo)
+    {
+        final List<Contributor> sponsor = new LinkedList<>();
+
+        // retrieve the sponsor name
+        final Elements sponsorElements = vo.getViewPage().select("sponsors");
+
+        // verify that there is data
+         if (sponsor != null)
+        	 sponsor.add(new Contributor(sponsorElements.text(), null));
+         
+        return sponsor;
+    }
+    
+    
+    private List<WebLink> getlink(ClinicalTrialsVO vo)
+    {
+        final List<WebLink> link = new LinkedList<>();
+
+        // retrieve the url link
+        final Elements linkElements = vo.getViewPage().select("url");
+
+        // verify that there is data
+         if (link != null)
+        	 link.add(new WebLink(linkElements.text(), null, null));
+         
+        return link;
     }
 
 

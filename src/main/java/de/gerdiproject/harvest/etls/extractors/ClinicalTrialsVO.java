@@ -17,7 +17,6 @@ package de.gerdiproject.harvest.etls.extractors;
 
 import org.jsoup.nodes.Document;
 
-import lombok.Data;
 
 import lombok.Value;
 
