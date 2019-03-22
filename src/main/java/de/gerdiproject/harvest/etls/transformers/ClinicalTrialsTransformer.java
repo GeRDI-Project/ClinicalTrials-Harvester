@@ -15,6 +15,8 @@
  */
 package de.gerdiproject.harvest.etls.transformers;
 
+
+
 import de.gerdiproject.harvest.etls.AbstractETL;
 import de.gerdiproject.harvest.etls.extractors.ClinicalTrialsVO;
 import de.gerdiproject.json.datacite.DataCiteJson;
@@ -28,12 +30,15 @@ import org.jsoup.select.Elements;
 
 import de.gerdiproject.json.datacite.Title;
 import de.gerdiproject.json.datacite.abstr.AbstractDate;
+import de.gerdiproject.json.datacite.enums.DateType;
 import de.gerdiproject.json.datacite.extension.generic.WebLink;
+import de.gerdiproject.json.datacite.extension.generic.enums.WebLinkType;
 import de.gerdiproject.json.datacite.Description;
 import de.gerdiproject.json.datacite.GeoLocation;
 import de.gerdiproject.json.datacite.Subject;
 import de.gerdiproject.json.datacite.Date;
 import de.gerdiproject.json.datacite.Contributor;
+
 
 
 
@@ -58,17 +63,16 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         // create the document
         final DataCiteJson document = new DataCiteJson(String.valueOf(vo.getId()));
         document.setPublisher("U.S. National Library of Medicine");
+        document.setLanguage("English");
         document.addTitles(getTitles(vo));
         document.addDescriptions(getDescriptions(vo));
-        document.addGeoLocations(getGeoLocations(vo));
+        //document.addGeoLocations(getGeoLocations(vo));
         document.addDates(getDates(vo));
         document.addDates(getlastdate(vo));
         document.addSubjects(getKeyword(vo));
         document.addContributors(getsponsors(vo));
         document.addWebLinks(getlink(vo));
-        
-     
-
+        document.addWebLinks(getlogoLink(vo));
 
 
         // TODO add all possible metadata to the document
@@ -104,7 +108,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     }
 
 
-    private List<GeoLocation> getGeoLocations(ClinicalTrialsVO vo)
+    /*private List<GeoLocation> getGeoLocations(ClinicalTrialsVO vo)
     {
         final List<GeoLocation> geoLocations = new LinkedList<>();
 
@@ -115,7 +119,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
             geoLocations.add(new GeoLocation(areaElem.wholeText()));
 
         return geoLocations;
-    }
+    }*/
 
     private List<AbstractDate> getDates(ClinicalTrialsVO vo)
     {
@@ -126,10 +130,10 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
         // verify that there are dates
          if (dates != null)
-        	 dates.add(new Date(dateElements.text(), null));
+        	 dates.add(new Date(dateElements.text(), DateType.Collected));
          
         return dates;
-    }   
+    } 
     private List<AbstractDate> getlastdate(ClinicalTrialsVO vo)
     {
         final List<AbstractDate> ldates = new LinkedList<>();
@@ -139,23 +143,25 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
         // verify that there are dates
          if (ldates != null)
-        	 ldates.add(new Date(ldateElements.text(), null));
+        	 ldates.add(new Date(ldateElements.text(), DateType.Collected));
          
         return ldates;
     }
     
     
-    private List<Subject> getKeyword(ClinicalTrialsVO vo)
+    
+	private List<Subject> getKeyword(ClinicalTrialsVO vo)
     {
         final List<Subject> keyword = new LinkedList<>();
 
         // retrieve the keywords
-        final Elements keyElements = vo.getViewPage().select("keyword");
+        final Elements keywordElements = vo.getViewPage().select("mesh_term");
+        
+        for (Element keywordElement : keywordElements) {
+            Subject subject = new Subject(keywordElement.text());
+            keyword.add(subject);
+        }
 
-        // verify that there is data
-         if (keyword != null)
-        	 keyword.add(new Subject(keyElements.text(), null));
-         
         return keyword;
     }
     
@@ -184,10 +190,22 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
         // verify that there is data
          if (link != null)
-        	 link.add(new WebLink(linkElements.text(), null, null));
+        	 link.add(new WebLink(linkElements.text()));
          
         return link;
     }
+    
+    private List<WebLink> getlogoLink(ClinicalTrialsVO vo)
+    {
+    	//retrieve logo link
+        final List<WebLink> logolinks = new LinkedList<>();
+        WebLink logoLink = new WebLink("https://clinicaltrials.gov/ct2/html/images/ct.gov-nlm-nih-logo.png");
+        logoLink.setName("logo");
+        logoLink.setType(WebLinkType.ProviderLogoURL);
+        logolinks.add(logoLink);
+
+        return (logolinks);
+    } 
 
 
 
