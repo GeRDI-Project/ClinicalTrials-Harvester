@@ -19,6 +19,7 @@ package de.gerdiproject.harvest.etls.transformers;
 
 import de.gerdiproject.harvest.etls.AbstractETL;
 import de.gerdiproject.harvest.etls.extractors.ClinicalTrialsVO;
+import de.gerdiproject.harvest.utils.HtmlUtils;
 import de.gerdiproject.json.datacite.DataCiteJson;
 
 
@@ -38,6 +39,7 @@ import de.gerdiproject.json.datacite.GeoLocation;
 import de.gerdiproject.json.datacite.Subject;
 import de.gerdiproject.json.datacite.Date;
 import de.gerdiproject.json.datacite.Contributor;
+
 
 
 
@@ -66,21 +68,23 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         document.setLanguage("English");
         document.addTitles(getTitles(vo));
         document.addDescriptions(getDescriptions(vo));
-        //document.addGeoLocations(getGeoLocations(vo));
         document.addDates(getDates(vo));
         document.addDates(getlastdate(vo));
         document.addSubjects(getKeyword(vo));
+        document.addSubjects(getMeshterm(vo));
         document.addContributors(getsponsors(vo));
         document.addWebLinks(getlink(vo));
         document.addWebLinks(getlogoLink(vo));
-
-
-        // TODO add all possible metadata to the document
-
-
+        
+        document.addWebLinks(getdocumenturl(vo));
+        document.addGeoLocations(getgeolocationPlace(vo));
+        
         return document;
-    }
-    private List<Title> getTitles(ClinicalTrialsVO vo)
+        		
+    }  		
+        
+   
+   private List<Title> getTitles(ClinicalTrialsVO vo)  
     {
         final List<Title> titlelist = new LinkedList<>();
 
@@ -108,19 +112,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     }
 
 
-    /*private List<GeoLocation> getGeoLocations(ClinicalTrialsVO vo)
-    {
-        final List<GeoLocation> geoLocations = new LinkedList<>();
-
-        // get the area name element
-        final Element areaElem = vo.getViewPage().selectFirst("address");
-        // verify that there is data
-        if (areaElem != null)
-            geoLocations.add(new GeoLocation(areaElem.wholeText()));
-
-        return geoLocations;
-    }*/
-
+    
     private List<AbstractDate> getDates(ClinicalTrialsVO vo)
     {
         final List<AbstractDate> dates = new LinkedList<>();
@@ -155,7 +147,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final List<Subject> keyword = new LinkedList<>();
 
         // retrieve the keywords
-        final Elements keywordElements = vo.getViewPage().select("mesh_term");
+        final Elements keywordElements = vo.getViewPage().select("keyword");
         
         for (Element keywordElement : keywordElements) {
             Subject subject = new Subject(keywordElement.text());
@@ -163,6 +155,21 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         }
 
         return keyword;
+    }
+	
+	private List<Subject> getMeshterm(ClinicalTrialsVO vo)
+    {
+        final List<Subject> meshterm = new LinkedList<>();
+
+        // retrieve the mesh terms
+        final Elements meshtermElements = vo.getViewPage().select("mesh_term");
+        
+        for (Element meshtermElement : meshtermElements) {
+            Subject subject = new Subject(meshtermElement.text());
+            meshterm.add(subject);
+        }
+
+        return meshterm;
     }
     
     
@@ -205,10 +212,39 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         logolinks.add(logoLink);
 
         return (logolinks);
-    } 
+    }
+    
+    private List<WebLink> getdocumenturl(ClinicalTrialsVO vo)
+    {
+        final List<WebLink> documentlink = new LinkedList<>();
 
+        // retrieve the document link
+        final Elements docElements = vo.getViewPage().select("document_url");
 
+        // verify that there is data
+         if (documentlink != null)
+        	 documentlink.add(new WebLink(docElements.text()));
+         
+        return documentlink;
+    }
+    
+    
+    private List<GeoLocation> getgeolocationPlace(ClinicalTrialsVO vo)
+    {
+        final List<GeoLocation> geoLocations = new LinkedList<>();
+        //final String locationName = HtmlUtils.getString(vo.getViewPage(),"country");
+        // get the area name element
+        final Element locationName = vo.getViewPage().selectFirst("country");
+        // verify that there is data
+        if (locationName!= null)
+            geoLocations.add(new GeoLocation(locationName.text()));
+     
+        //System.out.println(vo.getViewPage());
+        //System.out.println(locationName.text());
+        return geoLocations;
+    }
 
+   
     /**
      * Creates a unique identifier for a document from ClinicalTrials.
      *
