@@ -75,7 +75,6 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         document.addContributors(getsponsors(vo));
         document.addWebLinks(getlink(vo));
         document.addWebLinks(getlogoLink(vo));
-        
         document.addWebLinks(getdocumenturl(vo));
         document.addGeoLocations(getgeolocationPlace(vo));
         
@@ -261,7 +260,18 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         return geoLocations;
     }
 
-  
+    /*private List<GeoLocation> getgeolocationPlace(ClinicalTrialsVO vo)
+    {
+        final List<GeoLocation> geoLocations = new LinkedList<>();
+        final String locationName = HtmlUtils.getString(vo.getViewPage(),"country");
+ 
+        geoLocations.add(new GeoLocation(locationName));
+     
+        //System.out.println(vo.getViewPage());
+        //System.out.println(locationName);
+        return geoLocations;
+    }*/
+
     /**
      * Creates a unique identifier for a document from ClinicalTrials.
      *
