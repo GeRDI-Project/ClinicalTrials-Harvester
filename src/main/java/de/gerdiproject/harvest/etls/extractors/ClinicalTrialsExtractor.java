@@ -75,7 +75,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
     @Override
     public int size()
     {
-        return 125;
+        return 999;
     }
 
 
@@ -106,7 +106,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
      */
     private class ClinicalTrialsIterator implements Iterator<ClinicalTrialsVO>
     {
-        int id = 101;
+        int id = 0;
 
 
         @Override

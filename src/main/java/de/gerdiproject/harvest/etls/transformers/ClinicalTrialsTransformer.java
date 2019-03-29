@@ -22,7 +22,7 @@ import de.gerdiproject.harvest.etls.extractors.ClinicalTrialsVO;
 import de.gerdiproject.harvest.utils.HtmlUtils;
 import de.gerdiproject.json.datacite.DataCiteJson;
 
-
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -101,14 +101,15 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
     private List<Description> getDescriptions(ClinicalTrialsVO vo)
     {
-        final List<Description> Descriptionlist = new LinkedList<>();
+        final List<Description> descriptionlist = new LinkedList<>();
         // get the description
         final Element descriptions = vo.getViewPage().selectFirst("detailed_description");
         // verify that there is data
-        if (descriptions != null)
-            Descriptionlist.add(new Description(descriptions.wholeText(), null));
 
-        return Descriptionlist;
+        if (descriptions != null)
+            descriptionlist.add(new Description(descriptions.wholeText(), null));
+
+        return descriptionlist;
     }
 
 
@@ -134,6 +135,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final Elements ldateElements = vo.getViewPage().select("last_update_submitted");
 
         // verify that there are dates
+
          if (ldates != null)
         	 ldates.add(new Date(ldateElements.text(), DateType.Collected));
          
@@ -181,8 +183,13 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final Elements sponsorElements = vo.getViewPage().select("sponsors");
 
         // verify that there is data
-         if (sponsor != null)
-        	 sponsor.add(new Contributor(sponsorElements.text(), null));
+        for (Element sponsorElement : sponsorElements) {
+            Contributor contributor = new Contributor(sponsorElement.text(), null);
+            sponsor.add(contributor);
+        }
+
+         //if (sponsor != null)
+        	 //sponsor.add(new Contributor(sponsorElements.text(), null));
          
         return sponsor;
     }
@@ -196,8 +203,13 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final Elements linkElements = vo.getViewPage().select("url");
 
         // verify that there is data
-         if (link != null)
-        	 link.add(new WebLink(linkElements.text()));
+        for (Element linkElement : linkElements) {
+            WebLink weblink = new WebLink(linkElement.text());
+            link.add(weblink);
+        }
+
+         //if (link != null)
+        	 //link.add(new WebLink(linkElements.text()));
          
         return link;
     }
@@ -222,8 +234,13 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final Elements docElements = vo.getViewPage().select("document_url");
 
         // verify that there is data
-         if (documentlink != null)
-        	 documentlink.add(new WebLink(docElements.text()));
+        for (Element docElement : docElements) {
+            WebLink weblink = new WebLink(docElement.text());
+            documentlink.add(weblink);
+        }
+
+         //if (documentlink != null)
+        	 //documentlink.add(new WebLink(docElements.text()));
          
         return documentlink;
     }
@@ -244,7 +261,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         return geoLocations;
     }
 
-   
+  
     /**
      * Creates a unique identifier for a document from ClinicalTrials.
      *
