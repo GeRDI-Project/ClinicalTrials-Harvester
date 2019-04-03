@@ -65,7 +65,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         // create the document
         final DataCiteJson document = new DataCiteJson(String.valueOf(vo.getId()));
         document.setPublisher("U.S. National Library of Medicine");
-        document.setLanguage("English");
+        document.setLanguage("EN");
         document.addTitles(getTitles(vo));
         document.addDescriptions(getDescriptions(vo));
         document.addDates(getDates(vo));
