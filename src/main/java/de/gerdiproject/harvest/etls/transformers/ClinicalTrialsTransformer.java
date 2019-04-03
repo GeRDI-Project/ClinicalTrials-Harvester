@@ -264,8 +264,8 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     {
         final List<GeoLocation> geoLocations = new LinkedList<>();
         final String locationName = HtmlUtils.getString(vo.getViewPage(),"country");
- 
-        geoLocations.add(new GeoLocation(locationName));
+        if (locationName!= null)
+            geoLocations.add(new GeoLocation(locationName));
      
         //System.out.println(vo.getViewPage());
         //System.out.println(locationName);
