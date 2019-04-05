@@ -75,7 +75,8 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
     @Override
     public int size()
     {
-        return 999;
+        return 200;
+       
     }
 
 

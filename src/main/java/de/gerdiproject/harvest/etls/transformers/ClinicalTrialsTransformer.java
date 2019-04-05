@@ -21,8 +21,9 @@ import de.gerdiproject.harvest.etls.AbstractETL;
 import de.gerdiproject.harvest.etls.extractors.ClinicalTrialsVO;
 import de.gerdiproject.harvest.utils.HtmlUtils;
 import de.gerdiproject.json.datacite.DataCiteJson;
-
-import java.util.Collection;
+import java.text.SimpleDateFormat;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -63,9 +64,11 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     protected DataCiteJson transformElement(ClinicalTrialsVO vo) throws TransformerException
     {
         // create the document
+    	
         final DataCiteJson document = new DataCiteJson(String.valueOf(vo.getId()));
+        try {
         document.setPublisher("U.S. National Library of Medicine");
-        document.setLanguage("EN");
+        document.setLanguage("en");
         document.addTitles(getTitles(vo));
         document.addDescriptions(getDescriptions(vo));
         document.addDates(getDates(vo));
@@ -77,6 +80,8 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         document.addWebLinks(getlogoLink(vo));
         document.addWebLinks(getdocumenturl(vo));
         document.addGeoLocations(getgeolocationPlace(vo));
+    	}catch (ParseException e) { //NOPMD do nothing. just do not add the date if it does not exist
+        }
         
         return document;
         		
@@ -89,14 +94,20 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
         // get the title
         final Element title = vo.getViewPage().selectFirst("brief_title");
+        final Element officialtitle = vo.getViewPage().selectFirst("official_title");
+        
        // verify that there is data
+        if (officialtitle != null)
+        	titlelist.add(new Title(officialtitle.text()));
         if (title != null)
             titlelist.add(new Title(title.text()));
+            
 
 
         return titlelist;
     }
-
+   
+ 
 
     private List<Description> getDescriptions(ClinicalTrialsVO vo)
     {
@@ -113,34 +124,61 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
 
     
-    private List<AbstractDate> getDates(ClinicalTrialsVO vo)
+    private List<AbstractDate> getDates(ClinicalTrialsVO vo) throws ParseException
     {
         final List<AbstractDate> dates = new LinkedList<>();
 
         // retrieve the first submitted date
-        final Elements dateElements = vo.getViewPage().select("study_first_submitted");
+        //final Elements dateElements = vo.getViewPage().select("study_first_submitted");
+        final String dateElements = HtmlUtils.getString(vo.getViewPage(),"study_first_submitted");
+        //Date date = Calendar.getInstance().getTime(); 
+        String sDate  = dateElements;
+        SimpleDateFormat formatter=new SimpleDateFormat("MMM dd, yyyy");
+        try {
+        java.util.Date date=formatter.parse(sDate); 
+        
+        System.out.println(date);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  
+        String strDate = dateFormat.format(date);
+        
+        System.out.println("Converted String: " + strDate); 
 
         // verify that there are dates
          if (dates != null)
-        	 dates.add(new Date(dateElements.text(), DateType.Collected));
-         
+        	 dates.add(new Date(strDate, DateType.Collected));
+        }catch (ParseException e) { //NOPMD do nothing. just do not add the date if it does not exist
+        } 
+        
         return dates;
     } 
-    private List<AbstractDate> getlastdate(ClinicalTrialsVO vo)
+    private List<AbstractDate> getlastdate(ClinicalTrialsVO vo) throws ParseException
     {
         final List<AbstractDate> ldates = new LinkedList<>();
 
         // retrieve the last updated date
-        final Elements ldateElements = vo.getViewPage().select("last_update_submitted");
+        //final Elements ldateElements = vo.getViewPage().select("last_update_submitted");
+        final String ldateElements = HtmlUtils.getString(vo.getViewPage(),"last_update_submitted");
+        String lDate  = ldateElements;
+        SimpleDateFormat formatter=new SimpleDateFormat("MMM dd, yyyy");
+        try {
+        java.util.Date ldate=formatter.parse(lDate); 
+        
+        System.out.println(ldate);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  
+        String lstrDate = dateFormat.format(ldate);
+        
+        System.out.println("Converted String: " + lstrDate); 
 
         // verify that there are dates
-
          if (ldates != null)
-        	 ldates.add(new Date(ldateElements.text(), DateType.Collected));
-         
+        	 ldates.add(new Date(lstrDate, DateType.Collected));
+        }catch (ParseException e) { //NOPMD do nothing. just do not add the date if it does not exist
+        } 
+
+       
         return ldates;
     }
-    
+  
     
     
 	private List<Subject> getKeyword(ClinicalTrialsVO vo)
