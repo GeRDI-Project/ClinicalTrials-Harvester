@@ -137,11 +137,11 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         try {
         java.util.Date date=formatter.parse(sDate); 
         
-        System.out.println(date);
+        //System.out.println(date);
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  
         String strDate = dateFormat.format(date);
         
-        System.out.println("Converted String: " + strDate); 
+        //System.out.println("Converted String: " + strDate); 
 
         // verify that there are dates
          if (dates != null)
@@ -163,11 +163,11 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         try {
         java.util.Date ldate=formatter.parse(lDate); 
         
-        System.out.println(ldate);
+        //System.out.println(ldate);
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  
         String lstrDate = dateFormat.format(ldate);
         
-        System.out.println("Converted String: " + lstrDate); 
+        //System.out.println("Converted String: " + lstrDate); 
 
         // verify that there are dates
          if (ldates != null)
