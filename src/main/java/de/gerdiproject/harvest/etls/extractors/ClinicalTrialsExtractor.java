@@ -23,7 +23,8 @@ import de.gerdiproject.harvest.utils.data.HttpRequester;
 
 import org.jsoup.nodes.Document;
 
-
+import de.gerdiproject.harvest.clinicaltrials.constants.clinicaltrialsConstants;
+import de.gerdiproject.harvest.clinicaltrials.constants.clinicaltrialsUrlConstants;
 import de.gerdiproject.harvest.etls.AbstractETL;
 
 
@@ -75,7 +76,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
     @Override
     public int size()
     {
-        return 999;
+        return clinicaltrialsConstants.CLINICAL_TRIALS_DOC_COUNT;
        
     }
 
@@ -125,7 +126,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
             String id_s = Integer.toString(id);
             String NCT_id = "NCT" + "0000000000".substring(id_s.length()) + id_s;
 
-            final String url = String.format("https://clinicaltrials.gov/ct2/show/%s?displayxml=true", NCT_id);
+            final String url = String.format(clinicaltrialsUrlConstants.VIEW_URL, NCT_id);
 
             // check if a dataset page exists for the url
 

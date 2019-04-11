@@ -17,6 +17,8 @@ package de.gerdiproject.harvest.etls.transformers;
 
 
 
+import de.gerdiproject.harvest.clinicaltrials.constants.clinicaltrialsConstants;
+import de.gerdiproject.harvest.clinicaltrials.constants.clinicaltrialsUrlConstants;
 import de.gerdiproject.harvest.etls.AbstractETL;
 import de.gerdiproject.harvest.etls.extractors.ClinicalTrialsVO;
 import de.gerdiproject.harvest.utils.HtmlUtils;
@@ -42,9 +44,6 @@ import de.gerdiproject.json.datacite.Date;
 import de.gerdiproject.json.datacite.Contributor;
 
 
-
-
-
 /**
  * This transformer parses metadata from a {@linkplain ClinicalTrialsVO}
  * and creates {@linkplain DataCiteJson} objects from it.
@@ -67,8 +66,8 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     	
         final DataCiteJson document = new DataCiteJson(String.valueOf(vo.getId()));
         try {
-        document.setPublisher("U.S. National Library of Medicine");
-        document.setLanguage("en");
+        document.setPublisher(clinicaltrialsConstants.PROVIDER);
+        document.setLanguage(clinicaltrialsConstants.LANGUAGE);
         document.addTitles(getTitles(vo));
         document.addDescriptions(getDescriptions(vo));
         document.addDates(getDates(vo));
@@ -77,8 +76,6 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         document.addSubjects(getMeshterm(vo));
         document.addContributors(getsponsors(vo));
         document.addWebLinks(getlink(vo));
-        document.addWebLinks(getlogoLink(vo));
-        document.addWebLinks(getdocumenturl(vo));
         document.addGeoLocations(getgeolocationPlace(vo));
     	}catch (ParseException e) { //NOPMD do nothing. just do not add the date if it does not exist
         }
@@ -93,27 +90,24 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final List<Title> titlelist = new LinkedList<>();
 
         // get the title
-        final Element title = vo.getViewPage().selectFirst("brief_title");
-        final Element officialtitle = vo.getViewPage().selectFirst("official_title");
+        final Element title = vo.getViewPage().selectFirst(clinicaltrialsConstants.BRIEF_TITLE);
+        final Element officialtitle = vo.getViewPage().selectFirst(clinicaltrialsConstants.OFFICIAL_TITLE);
         
        // verify that there is data
         if (officialtitle != null)
         	titlelist.add(new Title(officialtitle.text()));
         if (title != null)
             titlelist.add(new Title(title.text()));
-            
-
-
+     
         return titlelist;
     }
-   
- 
+
 
     private List<Description> getDescriptions(ClinicalTrialsVO vo)
     {
         final List<Description> descriptionlist = new LinkedList<>();
         // get the description
-        final Element descriptions = vo.getViewPage().selectFirst("detailed_description");
+        final Element descriptions = vo.getViewPage().selectFirst(clinicaltrialsConstants.DETAILED_DESCRIPTION);
         // verify that there is data
 
         if (descriptions != null)
@@ -129,16 +123,16 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final List<AbstractDate> dates = new LinkedList<>();
 
         // retrieve the first submitted date
-        //final Elements dateElements = vo.getViewPage().select("study_first_submitted");
-        final String dateElements = HtmlUtils.getString(vo.getViewPage(),"study_first_submitted");
-        //Date date = Calendar.getInstance().getTime(); 
+        
+        final String dateElements = HtmlUtils.getString(vo.getViewPage(),clinicaltrialsConstants.STUDY_FIRST_SUBMITTED);
+        
         String sDate  = dateElements;
-        SimpleDateFormat formatter=new SimpleDateFormat("MMM dd, yyyy");
+        SimpleDateFormat formatter=new SimpleDateFormat(clinicaltrialsConstants.DATE_FORMAT);
         try {
         java.util.Date date=formatter.parse(sDate); 
         
         //System.out.println(date);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  
+        DateFormat dateFormat = new SimpleDateFormat(clinicaltrialsConstants.DATE_FORMAT_REQUIRED);  
         String strDate = dateFormat.format(date);
         
         //System.out.println("Converted String: " + strDate); 
@@ -156,15 +150,15 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final List<AbstractDate> ldates = new LinkedList<>();
 
         // retrieve the last updated date
-        //final Elements ldateElements = vo.getViewPage().select("last_update_submitted");
-        final String ldateElements = HtmlUtils.getString(vo.getViewPage(),"last_update_submitted");
+        
+        final String ldateElements = HtmlUtils.getString(vo.getViewPage(),clinicaltrialsConstants.LAST_UPDATE_SUBMITTED);
         String lDate  = ldateElements;
-        SimpleDateFormat formatter=new SimpleDateFormat("MMM dd, yyyy");
+        SimpleDateFormat formatter=new SimpleDateFormat(clinicaltrialsConstants.DATE_FORMAT);
         try {
         java.util.Date ldate=formatter.parse(lDate); 
         
         //System.out.println(ldate);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  
+        DateFormat dateFormat = new SimpleDateFormat(clinicaltrialsConstants.DATE_FORMAT_REQUIRED);  
         String lstrDate = dateFormat.format(ldate);
         
         //System.out.println("Converted String: " + lstrDate); 
@@ -179,14 +173,12 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         return ldates;
     }
   
-    
-    
 	private List<Subject> getKeyword(ClinicalTrialsVO vo)
     {
         final List<Subject> keyword = new LinkedList<>();
 
         // retrieve the keywords
-        final Elements keywordElements = vo.getViewPage().select("keyword");
+        final Elements keywordElements = vo.getViewPage().select(clinicaltrialsConstants.KEYWORD);
         
         for (Element keywordElement : keywordElements) {
             Subject subject = new Subject(keywordElement.text());
@@ -201,7 +193,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final List<Subject> meshterm = new LinkedList<>();
 
         // retrieve the mesh terms
-        final Elements meshtermElements = vo.getViewPage().select("mesh_term");
+        final Elements meshtermElements = vo.getViewPage().select(clinicaltrialsConstants.MESH_TERM);
         
         for (Element meshtermElement : meshtermElements) {
             Subject subject = new Subject(meshtermElement.text());
@@ -217,16 +209,13 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final List<Contributor> sponsor = new LinkedList<>();
 
         // retrieve the sponsor name
-        final Elements sponsorElements = vo.getViewPage().select("sponsors");
+        final Elements sponsorElements = vo.getViewPage().select(clinicaltrialsConstants.SPONSORS);
 
         // verify that there is data
         for (Element sponsorElement : sponsorElements) {
             Contributor contributor = new Contributor(sponsorElement.text(), null);
             sponsor.add(contributor);
         }
-
-         //if (sponsor != null)
-        	 //sponsor.add(new Contributor(sponsorElements.text(), null));
          
         return sponsor;
     }
@@ -236,50 +225,29 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     {
         final List<WebLink> link = new LinkedList<>();
 
-        // retrieve the url link
-        final Elements linkElements = vo.getViewPage().select("url");
+        // retrieve the url and document links
+        final Elements linkElements = vo.getViewPage().select(clinicaltrialsConstants.URL);
+        final Elements docElements = vo.getViewPage().select(clinicaltrialsConstants.DOCUMENT_URL);
 
         // verify that there is data
         for (Element linkElement : linkElements) {
             WebLink weblink = new WebLink(linkElement.text());
+            weblink.setName(clinicaltrialsUrlConstants.URL_NAME);
             link.add(weblink);
         }
-
-         //if (link != null)
-        	 //link.add(new WebLink(linkElements.text()));
-         
-        return link;
-    }
-    
-    private List<WebLink> getlogoLink(ClinicalTrialsVO vo)
-    {
-    	//retrieve logo link
-        final List<WebLink> logolinks = new LinkedList<>();
-        WebLink logoLink = new WebLink("https://clinicaltrials.gov/ct2/html/images/ct.gov-nlm-nih-logo.png");
-        logoLink.setName("logo");
-        logoLink.setType(WebLinkType.ProviderLogoURL);
-        logolinks.add(logoLink);
-
-        return (logolinks);
-    }
-    
-    private List<WebLink> getdocumenturl(ClinicalTrialsVO vo)
-    {
-        final List<WebLink> documentlink = new LinkedList<>();
-
-        // retrieve the document link
-        final Elements docElements = vo.getViewPage().select("document_url");
-
-        // verify that there is data
+        
         for (Element docElement : docElements) {
             WebLink weblink = new WebLink(docElement.text());
-            documentlink.add(weblink);
+            weblink.setName(clinicaltrialsUrlConstants.DOCUMENT_URL_NAME);
+            link.add(weblink);
         }
-
-         //if (documentlink != null)
-        	 //documentlink.add(new WebLink(docElements.text()));
-         
-        return documentlink;
+        
+        WebLink logoLink = new WebLink(clinicaltrialsUrlConstants.LOGO_URL);
+        logoLink.setName(clinicaltrialsUrlConstants.LOGO_URL_NAME);
+        logoLink.setType(WebLinkType.ProviderLogoURL);
+        link.add(logoLink);
+       
+        return link;
     }
     
     
@@ -288,7 +256,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final List<GeoLocation> geoLocations = new LinkedList<>();
         //final String locationName = HtmlUtils.getString(vo.getViewPage(),"country");
         // get the area name element
-        final Element locationName = vo.getViewPage().selectFirst("country");
+        final Element locationName = vo.getViewPage().selectFirst(clinicaltrialsConstants.COUNTRY);
         // verify that there is data
         if (locationName!= null)
             geoLocations.add(new GeoLocation(locationName.text()));
