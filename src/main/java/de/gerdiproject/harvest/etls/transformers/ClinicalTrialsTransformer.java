@@ -73,7 +73,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         document.addDates(getDates(vo));
         document.addDates(getlastdate(vo));
         document.addSubjects(getKeyword(vo));
-        document.addSubjects(getMeshterm(vo));
+        //document.addSubjects(getMeshterm(vo));
         document.addContributors(getsponsors(vo));
         document.addWebLinks(getlink(vo));
         document.addGeoLocations(getgeolocationPlace(vo));
@@ -115,7 +115,6 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
         return descriptionlist;
     }
-
 
     
     private List<AbstractDate> getDates(ClinicalTrialsVO vo) throws ParseException
@@ -179,16 +178,22 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
         // retrieve the keywords
         final Elements keywordElements = vo.getViewPage().select(clinicaltrialsConstants.KEYWORD);
+        final Elements meshtermElements = vo.getViewPage().select(clinicaltrialsConstants.MESH_TERM);
         
         for (Element keywordElement : keywordElements) {
             Subject subject = new Subject(keywordElement.text());
+            keyword.add(subject);
+        }
+        
+        for (Element meshtermElement : meshtermElements) {
+            Subject subject = new Subject(meshtermElement.text());
             keyword.add(subject);
         }
 
         return keyword;
     }
 	
-	private List<Subject> getMeshterm(ClinicalTrialsVO vo)
+	/*private List<Subject> getMeshterm(ClinicalTrialsVO vo)
     {
         final List<Subject> meshterm = new LinkedList<>();
 
@@ -201,7 +206,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         }
 
         return meshterm;
-    }
+    }*/
     
     
     private List<Contributor> getsponsors(ClinicalTrialsVO vo)
