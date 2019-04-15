@@ -77,7 +77,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
     public int size()
     {
         return clinicaltrialsConstants.CLINICAL_TRIALS_DOC_COUNT;
-       
+
     }
 
 
