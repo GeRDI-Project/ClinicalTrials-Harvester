@@ -16,13 +16,13 @@ public class clinicaltrialsConstants
     public static final String URL = "url";
     public static final String DOCUMENT_URL = "document_url";
     public static final String COUNTRY = "country";
+    public static final String OVERALL_STATUS = "overall_status";
+    public static final String OVERALL_CONTACT = "overall_contact";
 
-    public static final String DATE_FORMAT = "MMM dd, yyyy";
-    public static final String DATE_FORMAT_REQUIRED = "yyyy-MM-dd";
+    //public static final String DATE_FORMAT = "MMM dd, yyyy";
+    //public static final String DATE_FORMAT_REQUIRED = "yyyy-MM-dd";
 
-    public static final int CLINICAL_TRIALS_DOC_COUNT = 999;
-
-
-
+    public static final int CLINICAL_TRIALS_DOC_COUNT = 10000;
+    public static final String URL_ERROR = "Could not retrieve entries from: %s";
 
 }

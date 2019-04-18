@@ -24,6 +24,7 @@ import de.gerdiproject.harvest.etls.extractors.ClinicalTrialsVO;
 import de.gerdiproject.harvest.utils.HtmlUtils;
 import de.gerdiproject.json.datacite.DataCiteJson;
 import java.text.SimpleDateFormat;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.LinkedList;
@@ -34,7 +35,9 @@ import org.jsoup.select.Elements;
 
 import de.gerdiproject.json.datacite.Title;
 import de.gerdiproject.json.datacite.abstr.AbstractDate;
+import de.gerdiproject.json.datacite.abstr.AbstractPerson;
 import de.gerdiproject.json.datacite.enums.DateType;
+import de.gerdiproject.json.datacite.extension.IDataCiteExtension;
 import de.gerdiproject.json.datacite.extension.generic.WebLink;
 import de.gerdiproject.json.datacite.extension.generic.enums.WebLinkType;
 import de.gerdiproject.json.datacite.Description;
@@ -66,25 +69,22 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
         final DataCiteJson document = new DataCiteJson(String.valueOf(vo.getId()));
 
-        try {
-            document.setPublisher(clinicaltrialsConstants.PROVIDER);
-            document.setLanguage(clinicaltrialsConstants.LANGUAGE);
-            document.addTitles(getTitles(vo));
-            document.addDescriptions(getDescriptions(vo));
-            document.addDates(getDates(vo));
-            document.addDates(getlastdate(vo));
-            document.addSubjects(getKeyword(vo));
-            //document.addSubjects(getMeshterm(vo));
-            document.addContributors(getsponsors(vo));
-            document.addWebLinks(getlink(vo));
-            document.addGeoLocations(getgeolocationPlace(vo));
-        } catch (ParseException e) { //NOPMD do nothing. just do not add the date if it does not exist
-        }
+
+        document.setPublisher(clinicaltrialsConstants.PROVIDER);
+        document.setLanguage(clinicaltrialsConstants.LANGUAGE);
+        document.addTitles(getTitles(vo));
+        document.addDescriptions(getDescriptions(vo));
+        document.addDates(getDates(vo));
+        document.addDates(getlastdate(vo));
+        document.addSubjects(getKeyword(vo));
+        document.addContributors(getsponsors(vo));
+        document.addWebLinks(getlink(vo));
+        document.addGeoLocations(getgeolocationPlace(vo));
+        //document.addExtension(getoverallstatus(vo));
 
         return document;
 
     }
-
 
     private List<Title> getTitles(ClinicalTrialsVO vo)
     {
@@ -119,7 +119,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     }
 
 
-    private List<AbstractDate> getDates(ClinicalTrialsVO vo) throws ParseException
+    /*private List<AbstractDate> getDates(ClinicalTrialsVO vo) throws ParseException
     {
         final List<AbstractDate> dates = new LinkedList<>();
 
@@ -174,6 +174,36 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
 
         return ldates;
+    }*/
+
+    private List<AbstractDate> getDates(ClinicalTrialsVO vo)
+    {
+        final List<AbstractDate> dates = new LinkedList<>();
+
+        // retrieve the first submitted date
+
+        final String dateElements = HtmlUtils.getString(vo.getViewPage(), clinicaltrialsConstants.STUDY_FIRST_SUBMITTED);
+
+        // verify that there are dates
+        if (dates != null)
+            dates.add(new Date(dateElements, DateType.Collected));
+
+        return dates;
+    }
+
+    private List<AbstractDate> getlastdate(ClinicalTrialsVO vo)
+    {
+        final List<AbstractDate> ldates = new LinkedList<>();
+
+        // retrieve the last updated date
+
+        final String ldateElements = HtmlUtils.getString(vo.getViewPage(), clinicaltrialsConstants.LAST_UPDATE_SUBMITTED);
+
+        // verify that there are dates
+        if (ldates != null)
+            ldates.add(new Date(ldateElements, DateType.Collected));
+
+        return ldates;
     }
 
     private List<Subject> getKeyword(ClinicalTrialsVO vo)
@@ -185,12 +215,12 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final Elements meshtermElements = vo.getViewPage().select(clinicaltrialsConstants.MESH_TERM);
 
         for (Element keywordElement : keywordElements) {
-            Subject subject = new Subject(keywordElement.text());
+            Subject subject = new Subject(keywordElement.text(), null);
             keyword.add(subject);
         }
 
         for (Element meshtermElement : meshtermElements) {
-            Subject subject = new Subject(meshtermElement.text());
+            Subject subject = new Subject(meshtermElement.text(), null);
             keyword.add(subject);
         }
 
@@ -219,12 +249,19 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
         // retrieve the sponsor name
         final Elements sponsorElements = vo.getViewPage().select(clinicaltrialsConstants.SPONSORS);
+        final Elements overallcontacts  = vo.getViewPage().select(clinicaltrialsConstants.OVERALL_CONTACT);
 
         // verify that there is data
         for (Element sponsorElement : sponsorElements) {
             Contributor contributor = new Contributor(sponsorElement.text(), null);
             sponsor.add(contributor);
         }
+
+        for (Element overallcontact : overallcontacts) {
+            Contributor contact = new Contributor(overallcontact.text(), null);
+            sponsor.add(contact);
+        }
+
 
         return sponsor;
     }
@@ -268,25 +305,26 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final Element locationName = vo.getViewPage().selectFirst(clinicaltrialsConstants.COUNTRY);
 
         // verify that there is data
+
         if (locationName != null)
             geoLocations.add(new GeoLocation(locationName.text()));
 
-        //System.out.println(vo.getViewPage());
-        //System.out.println(locationName.text());
         return geoLocations;
     }
 
-    /*private List<GeoLocation> getgeolocationPlace(ClinicalTrialsVO vo)
+    /*private IDataCiteExtension getoverallstatus(ClinicalTrialsVO vo)
     {
-        final List<GeoLocation> geoLocations = new LinkedList<>();
-        final String locationName = HtmlUtils.getString(vo.getViewPage(),"country");
-        if (locationName!= null)
-            geoLocations.add(new GeoLocation(locationName));
+        final List<IDataCiteExtension> overallstatus = new LinkedList<>();
+        final Element status = vo.getViewPage().selectFirst(clinicaltrialsConstants.OVERALL_STATUS);
 
-        //System.out.println(vo.getViewPage());
-        //System.out.println(locationName);
-        return geoLocations;
+        // verify that there is data
+
+        if (status != null)
+            overallstatus.add(new IDataCiteExtension(status.text()));
+
+        return (IDataCiteExtension) overallstatus;
     }*/
+
 
     /**
      * Creates a unique identifier for a document from ClinicalTrials.
