@@ -15,8 +15,7 @@
  */
 package de.gerdiproject.harvest.etls.extractors;
 
-
-import java.awt.Font;
+//import java.awt.Font;
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -41,7 +40,6 @@ import de.gerdiproject.harvest.etls.AbstractETL;
 public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalTrialsVO>
 {
     private final HttpRequester httpRequester;
-
     private String version = null;
     private int size = -1;
 
@@ -72,6 +70,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
     @Override
     public String getUniqueVersionString()
     {
+        // it's not feasible to calculate the hash, because there is no overall version hence null
         return version;
     }
 
@@ -106,7 +105,10 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
 
 
     /**
-     * TODO add a description here
+     * TODO
+     * This class represents an {@linkplain Iterator} that iterates through
+     * {@linkplain ClinicalTrialsVO}s used for harvesting clinicalTrials datasets by
+     * trying out all IDs in a range of 0000 to 9999.
      *
      * @author Komal Ahir
      */
@@ -126,16 +128,15 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
         @Override
         public ClinicalTrialsVO next()
         {
-            // TODO
+            //converts ID into NCT number to get document url
 
             String id_s = Integer.toString(id);
-            String NCT_id = "NCT" + "0000000000".substring(id_s.length()) + id_s;
+            String NCT_id = "NCT" + "00000000".substring(id_s.length()) + id_s;
 
             final String url = String.format(clinicaltrialsUrlConstants.VIEW_URL, NCT_id);
 
             try {
                 // check if a dataset page exists for the url
-
                 // catch possible 404-codes
                 httpRequester.getRestResponse(RestRequestType.HEAD, url, null);
                 final Document viewPage = httpRequester.getHtmlFromUrl(url);
@@ -146,7 +147,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
                 id++;
                 return vo;
 
-            } catch (HTTPException | IOException e) { // NOPMD skip this page
+            } catch (HTTPException | IOException e) { // NOPMD skip this page,if it does not exist or is malformed
                 id++;
                 return null;
             }
