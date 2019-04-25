@@ -29,7 +29,7 @@ import lombok.Value;
 @Value
 public class ClinicalTrialsVO
 {
-    // TODO add fields here, or replace this class with whatever suits your needs
+    // add fields here, or replace this class with whatever suits your needs
     private int id;
     private Document viewPage;
 

@@ -15,7 +15,6 @@
  */
 package de.gerdiproject.harvest.etls.extractors;
 
-//import java.awt.Font;
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -60,7 +59,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
 
         this.httpRequester.setCharset(etl.getCharset());
 
-        // TODO if possible, extract some metadata in order to determine the size and a version string
+        // if possible, extract some metadata in order to determine the size and a version string
         // final ClinicalTrialsETL specificEtl = (ClinicalTrialsETL) etl;
         // this.version = ;
         // this.size = ;
@@ -84,7 +83,6 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
     }
 
 
-
     @Override
     protected Iterator<ClinicalTrialsVO> extractAll() throws ExtractorException
     {
@@ -103,9 +101,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
         this.size = size;
     }
 
-
     /**
-     * TODO
      * This class represents an {@linkplain Iterator} that iterates through
      * {@linkplain ClinicalTrialsVO}s used for harvesting clinicalTrials datasets by
      * trying out all IDs in a range of 0000 to 9999.
@@ -120,37 +116,23 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
         @Override
         public boolean hasNext()
         {
-            // TODO
             return id < size();
         }
-
 
         @Override
         public ClinicalTrialsVO next()
         {
-            //converts ID into NCT number to get document url
-
+            //converts ID into NCT number to get data url
             String id_s = Integer.toString(id);
             String NCT_id = "NCT" + "00000000".substring(id_s.length()) + id_s;
 
             final String url = String.format(clinicaltrialsUrlConstants.VIEW_URL, NCT_id);
 
-            try {
-                // check if a dataset page exists for the url
-                // catch possible 404-codes
-                httpRequester.getRestResponse(RestRequestType.HEAD, url, null);
-                final Document viewPage = httpRequester.getHtmlFromUrl(url);
-                final ClinicalTrialsVO vo =
-                    viewPage == null
-                    ? null
-                    : new ClinicalTrialsVO(id, viewPage);
-                id++;
-                return vo;
-
-            } catch (HTTPException | IOException e) { // NOPMD skip this page,if it does not exist or is malformed
-                id++;
-                return null;
-            }
+            // check if a dataset page exists for the url
+            final Document viewPage = httpRequester.getHtmlFromUrl(url);
+            final ClinicalTrialsVO vo = viewPage == null ? null : new ClinicalTrialsVO(id, viewPage);
+            id++;
+            return vo;
 
         }
     }
