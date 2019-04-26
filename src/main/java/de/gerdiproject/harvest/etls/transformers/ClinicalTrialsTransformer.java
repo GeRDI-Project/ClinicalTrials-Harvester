@@ -15,15 +15,12 @@
  */
 package de.gerdiproject.harvest.etls.transformers;
 
-
-
 import de.gerdiproject.harvest.clinicaltrials.constants.clinicaltrialsConstants;
 import de.gerdiproject.harvest.clinicaltrials.constants.clinicaltrialsUrlConstants;
 import de.gerdiproject.harvest.etls.AbstractETL;
 import de.gerdiproject.harvest.etls.extractors.ClinicalTrialsVO;
 import de.gerdiproject.harvest.utils.HtmlUtils;
 import de.gerdiproject.json.datacite.DataCiteJson;
-import java.text.SimpleDateFormat;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -33,7 +30,6 @@ import org.jsoup.select.Elements;
 
 import de.gerdiproject.json.datacite.Title;
 import de.gerdiproject.json.datacite.abstr.AbstractDate;
-import de.gerdiproject.json.datacite.abstr.AbstractPerson;
 import de.gerdiproject.json.datacite.enums.DateType;
 import de.gerdiproject.json.datacite.extension.generic.WebLink;
 import de.gerdiproject.json.datacite.extension.generic.enums.WebLinkType;
@@ -52,13 +48,6 @@ import de.gerdiproject.json.datacite.Contributor;
  */
 public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<ClinicalTrialsVO, DataCiteJson>
 {
-    @Override
-    public void init(AbstractETL<?, ?> etl)
-    {
-        super.init(etl);
-    }
-
-
     @Override
     protected DataCiteJson transformElement(ClinicalTrialsVO vo) throws TransformerException
     {
