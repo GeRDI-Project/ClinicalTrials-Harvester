@@ -1,7 +1,10 @@
 package de.gerdiproject.harvest.clinicaltrials.constants;
 
-//A static collection of constant parameters for configuring the ClinicalTrials Harvester.
-
+/**
+ * A static collection of constant parameters for configuring the ClinicalTrials Harvester.
+ * @author komal
+ *
+ */
 public class clinicaltrialsConstants
 {
 

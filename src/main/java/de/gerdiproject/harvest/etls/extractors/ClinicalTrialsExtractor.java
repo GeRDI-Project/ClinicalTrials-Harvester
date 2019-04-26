@@ -15,10 +15,7 @@
  */
 package de.gerdiproject.harvest.etls.extractors;
 
-import java.io.IOException;
 import java.util.Iterator;
-
-import javax.xml.ws.http.HTTPException;
 
 import de.gerdiproject.harvest.utils.data.HttpRequester;
 import de.gerdiproject.harvest.utils.data.enums.RestRequestType;

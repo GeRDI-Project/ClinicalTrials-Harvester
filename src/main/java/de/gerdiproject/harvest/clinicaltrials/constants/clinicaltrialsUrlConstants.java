@@ -1,7 +1,11 @@
 package de.gerdiproject.harvest.clinicaltrials.constants;
 
-//A static collection of constant parameters for assembling ClinicalTrials URLs.
 
+/**
+ * A static collection of constant parameters for assembling ClinicalTrials URLs.
+ * @author komal
+ *
+ */
 public class clinicaltrialsUrlConstants
 {
     //URLs
