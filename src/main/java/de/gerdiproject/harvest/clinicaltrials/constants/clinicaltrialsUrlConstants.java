@@ -7,7 +7,7 @@ public class clinicaltrialsUrlConstants
     //URLs
     public static final String LOGO_URL = "https://clinicaltrials.gov/ct2/html/images/ct.gov-nlm-nih-logo.png";
 
-    public static final String VIEW_URL = "https://clinicaltrials.gov/ct2/show/%s?displayxml=true";
+    public static final String VIEW_URL = "https://clinicaltrials.gov/ct2/show/NCT%08d?displayxml=true";
 
     //NAMES
     public static final String LOGO_URL_NAME = "logo";

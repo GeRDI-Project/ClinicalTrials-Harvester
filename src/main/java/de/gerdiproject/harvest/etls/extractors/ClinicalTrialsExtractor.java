@@ -23,10 +23,12 @@ import javax.xml.ws.http.HTTPException;
 import de.gerdiproject.harvest.utils.data.HttpRequester;
 import de.gerdiproject.harvest.utils.data.enums.RestRequestType;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import de.gerdiproject.harvest.clinicaltrials.constants.clinicaltrialsConstants;
 import de.gerdiproject.harvest.clinicaltrials.constants.clinicaltrialsUrlConstants;
+
 import de.gerdiproject.harvest.etls.AbstractETL;
 
 
@@ -122,18 +124,23 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
         @Override
         public ClinicalTrialsVO next()
         {
-            //converts ID into NCT number to get data url
-            String id_s = Integer.toString(id);
-            String NCT_id = "NCT" + "00000000".substring(id_s.length()) + id_s;
 
-            final String url = String.format(clinicaltrialsUrlConstants.VIEW_URL, NCT_id);
-
-            // check if a dataset page exists for the url
-            final Document viewPage = httpRequester.getHtmlFromUrl(url);
-            final ClinicalTrialsVO vo = viewPage == null ? null : new ClinicalTrialsVO(id, viewPage);
+            final String url = String.format(clinicaltrialsUrlConstants.VIEW_URL, id);
             id++;
-            return vo;
+
+            try {
+
+                // suppress expected warning messages by retrieving the string response first
+                final String response = httpRequester.getRestResponse(RestRequestType.GET, url, null);
+
+                // parse HTML from String
+                final Document viewPage = Jsoup.parse(response);
+                return new ClinicalTrialsVO(id, viewPage);
+            } catch (Exception e) { // skip this page
+                return null;
+            }
 
         }
+
     }
 }
