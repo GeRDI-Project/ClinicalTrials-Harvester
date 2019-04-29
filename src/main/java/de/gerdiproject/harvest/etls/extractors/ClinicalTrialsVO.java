@@ -32,5 +32,4 @@ public class ClinicalTrialsVO
     // add fields here, or replace this class with whatever suits your needs
     private int id;
     private Document viewPage;
-
 }

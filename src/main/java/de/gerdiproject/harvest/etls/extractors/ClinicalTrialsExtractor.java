@@ -50,20 +50,13 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
         this.httpRequester = new HttpRequester();
     }
 
-
     @Override
     public void init(AbstractETL<?, ?> etl)
     {
         super.init(etl);
 
         this.httpRequester.setCharset(etl.getCharset());
-
-        // if possible, extract some metadata in order to determine the size and a version string
-        // final ClinicalTrialsETL specificEtl = (ClinicalTrialsETL) etl;
-        // this.version = ;
-        // this.size = ;
     }
-
 
     @Override
     public String getUniqueVersionString()
@@ -72,15 +65,11 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
         return version;
     }
 
-
-
     @Override
     public int size()
     {
         return clinicaltrialsConstants.CLINICAL_TRIALS_DOC_COUNT;
-
     }
-
 
     @Override
     protected Iterator<ClinicalTrialsVO> extractAll() throws ExtractorException
@@ -88,12 +77,10 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
         return new ClinicalTrialsIterator();
     }
 
-
     public int getSize()
     {
         return size;
     }
-
 
     public void setSize(int size)
     {
@@ -111,7 +98,6 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
     {
         int id = 0;
 
-
         @Override
         public boolean hasNext()
         {
@@ -121,23 +107,18 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
         @Override
         public ClinicalTrialsVO next()
         {
-
             final String url = String.format(clinicaltrialsUrlConstants.VIEW_URL, id);
             id++;
 
             try {
-
                 // suppress expected warning messages by retrieving the string response first
                 final String response = httpRequester.getRestResponse(RestRequestType.GET, url, null);
-
                 // parse HTML from String
                 final Document viewPage = Jsoup.parse(response);
                 return new ClinicalTrialsVO(id, viewPage);
             } catch (Exception e) { // skip this page
                 return null;
             }
-
         }
-
     }
 }

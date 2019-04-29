@@ -17,7 +17,6 @@ package de.gerdiproject.harvest.etls.transformers;
 
 import de.gerdiproject.harvest.clinicaltrials.constants.clinicaltrialsConstants;
 import de.gerdiproject.harvest.clinicaltrials.constants.clinicaltrialsUrlConstants;
-import de.gerdiproject.harvest.etls.AbstractETL;
 import de.gerdiproject.harvest.etls.extractors.ClinicalTrialsVO;
 import de.gerdiproject.harvest.utils.HtmlUtils;
 import de.gerdiproject.json.datacite.DataCiteJson;
@@ -52,10 +51,8 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     protected DataCiteJson transformElement(ClinicalTrialsVO vo) throws TransformerException
     {
         // create the document
-
         final DataCiteJson document = new DataCiteJson(String.valueOf(vo.getId()));
         // add all possible metadata to the document
-
         document.setPublisher(clinicaltrialsConstants.PROVIDER);
         document.setLanguage(clinicaltrialsConstants.LANGUAGE);
         document.addTitles(getTitles(vo));
@@ -68,9 +65,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         document.addWebLinks(getlink(vo));
         document.addGeoLocations(getgeolocationPlace(vo));
 
-
         return document;
-
     }
 
     private List<Title> getTitles(ClinicalTrialsVO vo)
@@ -91,7 +86,6 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         return titlelist;
     }
 
-
     private List<Description> getDescriptions(ClinicalTrialsVO vo)
     {
         final List<Description> descriptionlist = new LinkedList<>();
@@ -104,8 +98,6 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
         return descriptionlist;
     }
-
-
 
     private List<AbstractDate> getDates(ClinicalTrialsVO vo)
     {
@@ -140,7 +132,6 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final List<Subject> keyword = new LinkedList<>();
 
         // retrieve the overall status, keywords and meshterm
-
         final Elements keywordElements = vo.getViewPage().select(clinicaltrialsConstants.KEYWORD);
         final Elements meshtermElements = vo.getViewPage().select(clinicaltrialsConstants.MESH_TERM);
 
@@ -165,7 +156,6 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final Elements sponsorElements = vo.getViewPage().select(clinicaltrialsConstants.SPONSORS);
         final Elements overallcontacts  = vo.getViewPage().select(clinicaltrialsConstants.OVERALL_CONTACT);
 
-
         for (Element sponsorElement : sponsorElements) {
             Contributor contributor = new Contributor(sponsorElement.text(), null);
             sponsor.add(contributor);
@@ -176,10 +166,8 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
             sponsor.add(contact);
         }
 
-
         return sponsor;
     }
-
 
     private List<WebLink> getlink(ClinicalTrialsVO vo)
     {
@@ -188,7 +176,6 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         // retrieve the url,document links and logo url
         final Elements linkElements = vo.getViewPage().select(clinicaltrialsConstants.URL);
         final Elements docElements = vo.getViewPage().select(clinicaltrialsConstants.DOCUMENT_URL);
-
 
         for (Element linkElement : linkElements) {
             WebLink weblink = new WebLink(linkElement.text());
@@ -209,7 +196,6 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
         return link;
     }
-
 
     private List<GeoLocation> getgeolocationPlace(ClinicalTrialsVO vo)
     {
@@ -234,7 +220,6 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         if (statusElement != null)
             status.add(new Subject(statusElement.text(), null));
 
-        //System.out.println(statusElement);
         return status;
     }
 
@@ -251,5 +236,3 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         return vo.toString();
     }*/
 }
-
-
