@@ -23,8 +23,8 @@ import de.gerdiproject.harvest.utils.data.enums.RestRequestType;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import de.gerdiproject.harvest.clinicaltrials.constants.clinicaltrialsConstants;
-import de.gerdiproject.harvest.clinicaltrials.constants.clinicaltrialsUrlConstants;
+import de.gerdiproject.harvest.clinicaltrials.constants.ClinicaltrialsConstants;
+import de.gerdiproject.harvest.clinicaltrials.constants.ClinicaltrialsUrlConstants;
 
 import de.gerdiproject.harvest.etls.AbstractETL;
 
@@ -68,7 +68,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
     @Override
     public int size()
     {
-        return clinicaltrialsConstants.CLINICAL_TRIALS_DOC_COUNT;
+        return ClinicaltrialsConstants.CLINICAL_TRIALS_DOC_COUNT;
     }
 
     @Override
@@ -107,7 +107,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
         @Override
         public ClinicalTrialsVO next()
         {
-            final String url = String.format(clinicaltrialsUrlConstants.VIEW_URL, id);
+            final String url = String.format(ClinicaltrialsUrlConstants.VIEW_URL, id);
             id++;
 
             try {
@@ -116,7 +116,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
                 // parse HTML from String
                 final Document viewPage = Jsoup.parse(response);
                 return new ClinicalTrialsVO(id, viewPage);
-            } catch (Exception e) { // skip this page
+            } catch (Exception e) { // NOPMD skip this page
                 return null;
             }
         }

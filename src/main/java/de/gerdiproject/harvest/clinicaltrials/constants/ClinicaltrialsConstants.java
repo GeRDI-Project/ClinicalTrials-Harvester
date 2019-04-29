@@ -5,7 +5,7 @@ package de.gerdiproject.harvest.clinicaltrials.constants;
  * @author komal
  *
  */
-public class clinicaltrialsConstants
+public class ClinicaltrialsConstants
 {
 
     public static final String PROVIDER = "U.S. National Library of Medicine";

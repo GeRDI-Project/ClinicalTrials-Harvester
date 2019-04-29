@@ -6,7 +6,7 @@ package de.gerdiproject.harvest.clinicaltrials.constants;
  * @author komal
  *
  */
-public class clinicaltrialsUrlConstants
+public class ClinicaltrialsUrlConstants
 {
     //URLs
     public static final String LOGO_URL = "https://clinicaltrials.gov/ct2/html/images/ct.gov-nlm-nih-logo.png";
