@@ -23,8 +23,8 @@ import de.gerdiproject.harvest.utils.data.enums.RestRequestType;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import de.gerdiproject.harvest.clinicaltrials.constants.ClinicaltrialsConstants;
-import de.gerdiproject.harvest.clinicaltrials.constants.ClinicaltrialsUrlConstants;
+import de.gerdiproject.harvest.clinicaltrials.constants.ClinicalTrialsConstants;
+import de.gerdiproject.harvest.clinicaltrials.constants.ClinicalTrialsUrlConstants;
 
 import de.gerdiproject.harvest.etls.AbstractETL;
 
@@ -38,7 +38,7 @@ import de.gerdiproject.harvest.etls.AbstractETL;
 public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalTrialsVO>
 {
     private final HttpRequester httpRequester;
-    private String version = null;
+    //private String version = null;
     private int size = -1;
 
 
@@ -62,13 +62,13 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
     public String getUniqueVersionString()
     {
         // it's not feasible to calculate the hash, because there is no overall version hence null
-        return version;
+        return null;
     }
 
     @Override
     public int size()
     {
-        return ClinicaltrialsConstants.CLINICAL_TRIALS_DOC_COUNT;
+        return ClinicalTrialsConstants.CLINICAL_TRIALS_DOC_COUNT;
     }
 
     @Override
@@ -77,7 +77,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
         return new ClinicalTrialsIterator();
     }
 
-    public int getSize()
+    /*public int getSize()
     {
         return size;
     }
@@ -85,7 +85,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
     public void setSize(int size)
     {
         this.size = size;
-    }
+    }*/
 
     /**
      * This class represents an {@linkplain Iterator} that iterates through
@@ -107,7 +107,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
         @Override
         public ClinicalTrialsVO next()
         {
-            final String url = String.format(ClinicaltrialsUrlConstants.VIEW_URL, id);
+            final String url = String.format(ClinicalTrialsUrlConstants.VIEW_URL, id);
             id++;
 
             try {
