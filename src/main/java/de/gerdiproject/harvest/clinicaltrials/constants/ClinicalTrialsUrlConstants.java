@@ -17,6 +17,7 @@ package de.gerdiproject.harvest.clinicaltrials.constants;
 
 import de.gerdiproject.json.datacite.extension.generic.WebLink;
 import de.gerdiproject.json.datacite.extension.generic.enums.WebLinkType;
+
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -29,19 +30,11 @@ import lombok.NoArgsConstructor;
 public class ClinicalTrialsUrlConstants
 {
     // URLs
-    // public static final String LOGO_URL = "https://clinicaltrials.gov/ct2/html/images/ct.gov-nlm-nih-logo.png";
-
     public static final String VIEW_URL = "https://clinicaltrials.gov/ct2/show/NCT%08d?displayxml=true";
 
     // NAMES
-    public static final String LOGO_URL_NAME = "logo";
-
     public static final String DOCUMENT_URL_NAME = "document_url";
-
     public static final String URL_NAME = "url";
-
-
-
     public static final WebLink LOGO_WEB_LINK = createLogoWebLink();
 
     private static WebLink createLogoWebLink()

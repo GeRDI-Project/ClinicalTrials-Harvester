@@ -38,9 +38,6 @@ import de.gerdiproject.harvest.etls.AbstractETL;
 public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalTrialsVO>
 {
     private final HttpRequester httpRequester;
-    //private String version = null;
-    private int size = -1;
-
 
     /**
      * Simple constructor.
@@ -76,16 +73,6 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
     {
         return new ClinicalTrialsIterator();
     }
-
-    /*public int getSize()
-    {
-        return size;
-    }
-
-    public void setSize(int size)
-    {
-        this.size = size;
-    }*/
 
     /**
      * This class represents an {@linkplain Iterator} that iterates through

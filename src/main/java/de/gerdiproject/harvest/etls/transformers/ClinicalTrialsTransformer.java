@@ -21,7 +21,6 @@ import de.gerdiproject.harvest.etls.extractors.ClinicalTrialsVO;
 import de.gerdiproject.harvest.utils.HtmlUtils;
 import de.gerdiproject.json.datacite.DataCiteJson;
 
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,12 +32,12 @@ import de.gerdiproject.json.datacite.Title;
 import de.gerdiproject.json.datacite.abstr.AbstractDate;
 import de.gerdiproject.json.datacite.enums.DateType;
 import de.gerdiproject.json.datacite.extension.generic.WebLink;
-import de.gerdiproject.json.datacite.extension.generic.enums.WebLinkType;
 import de.gerdiproject.json.datacite.Description;
 import de.gerdiproject.json.datacite.GeoLocation;
 import de.gerdiproject.json.datacite.Subject;
 import de.gerdiproject.json.datacite.Date;
 import de.gerdiproject.json.datacite.Contributor;
+import de.gerdiproject.json.datacite.FundingReference;
 
 
 /**
@@ -56,21 +55,44 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final Document viewPage = vo.getViewPage();
         final String nctId = HtmlUtils.getString(viewPage, ClinicalTrialsConstants.NCT_ID);
         final DataCiteJson document = new DataCiteJson(nctId);
-        //final DataCiteJson document = new DataCiteJson(String.valueOf(vo.getId()));
         // add all possible metadata to the document
         document.setPublisher(ClinicalTrialsConstants.PROVIDER);
         document.setLanguage(ClinicalTrialsConstants.LANGUAGE);
+
         document.addTitles(getTitles(vo));
-        document.addDescriptions(getdescription(vo));
+        document.addDescriptions(getDescription(vo));
         document.addDates(getDates(vo));
-        //document.addDates(getlastdate(vo));
-        document.addSubjects(getstatus(vo));
-        document.addSubjects(getkeywordList(vo));
-        document.addContributors(getsponsors(vo));
-        document.addWebLinks(getwebLinkList(vo));
+        // TODO; REFACTOR CONTACTS like SUBJECTS see below
+        // document.addContributors(getSponsors(vo));
+        document.addWebLinks(getWebLinkList(vo));
         document.addGeoLocations(getGeoLocations(vo));
 
+        document.addSubjects(HtmlUtils.getObjects(viewPage, ClinicalTrialsConstants.KEYWORD, this::parseSubject));
+        document.addSubjects(HtmlUtils.getObjects(viewPage, ClinicalTrialsConstants.MESH_TERM, this::parseSubject));
+        document.addSubjects(HtmlUtils.getObjects(viewPage, ClinicalTrialsConstants.OVERALL_STATUS, this::parseSubject));
+        document.addFundingReferences(HtmlUtils.getObjectsFromParent(viewPage, ClinicalTrialsConstants.SPONSORS, this::parseFunder));
+
         return document;
+    }
+
+    /**
+     * Create a new Subject from an elements text
+     * @param ele
+     * @return
+     */
+    private Subject parseSubject(Element ele)
+    {
+        return new Subject(ele.text());
+    }
+
+    private FundingReference parseFunder(Element ele)
+    {
+        final String funderName = HtmlUtils.getString(ele, ClinicalTrialsConstants.AGENCY);
+
+        if(funderName != null)
+            return new FundingReference(funderName);
+        else
+            return null;
     }
 
     private List<Title> getTitles(ClinicalTrialsVO vo)
@@ -91,12 +113,11 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         return titleList;
     }
 
-    private List<Description> getdescription(ClinicalTrialsVO vo)
+    private List<Description> getDescription(ClinicalTrialsVO vo)
     {
         final List<Description> description = new LinkedList<>();
         // get the description
         final Element detailedDescription = vo.getViewPage().selectFirst(ClinicalTrialsConstants.DETAILED_DESCRIPTION);
-
         // verify that there is data
         if (detailedDescription != null)
             description.add(new Description(detailedDescription.wholeText(), null));
@@ -107,11 +128,9 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     private List<AbstractDate> getDates(ClinicalTrialsVO vo)
     {
         final List<AbstractDate> dates = new LinkedList<>();
-
         // retrieve the first and last submitted date
         final String submissionDate = HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.STUDY_FIRST_SUBMITTED);
         final String lastSubmissionDate = HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.LAST_UPDATE_SUBMITTED);
-
         // verify that there are dates
         if (submissionDate != null)
             dates.add(new Date(submissionDate, DateType.Collected));
@@ -122,66 +141,23 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         return dates;
     }
 
-    /*private List<AbstractDate> getlastdate(ClinicalTrialsVO vo)
+    private List<Contributor> getSponsors(ClinicalTrialsVO vo)
     {
-        final List<AbstractDate> ldates = new LinkedList<>();
+        final List<Contributor> overallContact = new LinkedList<>();
+        // retrieve the overall contact
+        final Elements overallContacts  = vo.getViewPage().select(ClinicalTrialsConstants.OVERALL_CONTACT);
 
-        // retrieve the last updated date
-        final String ldateElements = HtmlUtils.getString(vo.getViewPage(), ClinicaltrialsConstants.LAST_UPDATE_SUBMITTED);
-
-        // verify that there are dates
-        if (ldates != null)
-            ldates.add(new Date(ldateElements, DateType.Collected));
-
-        return ldates;
-    }*/
-
-    private List<Subject> getkeywordList(ClinicalTrialsVO vo)
-    {
-        final List<Subject> keywordList = new LinkedList<>();
-
-        // retrieve the overall status, keywords and meshterm
-        final Elements keywords = vo.getViewPage().select(ClinicalTrialsConstants.KEYWORD);
-        final Elements meshterms = vo.getViewPage().select(ClinicalTrialsConstants.MESH_TERM);
-
-        for (Element keyword : keywords) {
-            Subject subject1 = new Subject(keyword.text(), null);
-            keywordList.add(subject1);
+        for (Element contact : overallContacts) {
+            Contributor contrib = new Contributor(contact.text(), null);
+            overallContact.add(contrib);
         }
 
-        for (Element meshterm : meshterms) {
-            Subject subject = new Subject(meshterm.text(), null);
-            keywordList.add(subject);
-        }
-
-        return keywordList;
+        return overallContact;
     }
 
-    private List<Contributor> getsponsors(ClinicalTrialsVO vo)
-    {
-        final List<Contributor> sponsor = new LinkedList<>();
-
-        // retrieve the sponsor name and overall contact
-        final Elements sponsorElements = vo.getViewPage().select(ClinicalTrialsConstants.SPONSORS);
-        final Elements overallcontacts  = vo.getViewPage().select(ClinicalTrialsConstants.OVERALL_CONTACT);
-
-        for (Element sponsorElement : sponsorElements) {
-            Contributor contributor = new Contributor(sponsorElement.text(), null);
-            sponsor.add(contributor);
-        }
-
-        for (Element overallcontact : overallcontacts) {
-            Contributor contact = new Contributor(overallcontact.text(), null);
-            sponsor.add(contact);
-        }
-
-        return sponsor;
-    }
-
-    private List<WebLink> getwebLinkList(ClinicalTrialsVO vo)
+    private List<WebLink> getWebLinkList(ClinicalTrialsVO vo)
     {
         final List<WebLink> webLinkList = new LinkedList<>();
-
         // retrieve the url,document links and logo url
         final Elements linkElements = vo.getViewPage().select(ClinicalTrialsConstants.URL);
         final Elements docElements = vo.getViewPage().select(ClinicalTrialsConstants.DOCUMENT_URL);
@@ -198,10 +174,6 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
             webLinkList.add(weblink);
         }
 
-        /*WebLink logoLink = new WebLink(ClinicaltrialsUrlConstants.LOGO_URL);
-        logoLink.setName(ClinicaltrialsUrlConstants.LOGO_URL_NAME);
-        logoLink.setType(WebLinkType.ProviderLogoURL);
-        link.add(logoLink);*/
         webLinkList.add(ClinicalTrialsUrlConstants.LOGO_WEB_LINK);
         return webLinkList;
     }
@@ -209,33 +181,13 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     private List<GeoLocation> getGeoLocations(ClinicalTrialsVO vo)
     {
         final List<GeoLocation> geoLocations = new LinkedList<>();
-        // get the location
-        final Element locationNames = vo.getViewPage().selectFirst(ClinicalTrialsConstants.COUNTRY);
-        //final String locationNames = HtmlUtils.getString(vo.getViewPage(),ClinicaltrialsConstants.COUNTRY);
-
-
-        /*for (Element locationName1 : locationNames) {
-            GeoLocation geolocation = new GeoLocation(locationName1.text());
-            geoLocations.add(geolocation);
-        }*/
+        // get the location; TODO: fetch all locations
+        final Element locationName = vo.getViewPage().selectFirst(ClinicalTrialsConstants.COUNTRY);
         // verify that there is data
-        if (locationNames != null)
-            geoLocations.add(new GeoLocation(locationNames.text()));
+        if (locationName != null)
+            geoLocations.add(new GeoLocation(locationName.text()));
 
         return geoLocations;
-    }
-
-    private List<Subject> getstatus(ClinicalTrialsVO vo)
-    {
-        final List<Subject> status = new LinkedList<>();
-
-        // retrieve the overall status
-        final Elements statusElement = vo.getViewPage().select(ClinicalTrialsConstants.OVERALL_STATUS);
-
-        if (statusElement != null)
-            status.add(new Subject(statusElement.text(), null));
-
-        return status;
     }
 
     /**
@@ -245,5 +197,4 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
      *
      * @return a unique identifier of this document
      */
-
 }

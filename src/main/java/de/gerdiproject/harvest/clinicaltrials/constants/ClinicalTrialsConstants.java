@@ -29,6 +29,7 @@ public class ClinicalTrialsConstants
 
     public static final String PROVIDER = "U.S. National Library of Medicine";
     public static final String LANGUAGE = "en";
+    public static final String AGENCY = "agency";
     public static final String BRIEF_TITLE = "brief_title";
     public static final String OFFICIAL_TITLE = "official_title";
     public static final String DETAILED_DESCRIPTION = "detailed_description";
