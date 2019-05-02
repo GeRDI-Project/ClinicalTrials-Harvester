@@ -29,6 +29,7 @@ import de.gerdiproject.harvest.clinicaltrials.constants.ClinicalTrialsUrlConstan
 import de.gerdiproject.harvest.etls.AbstractETL;
 
 
+
 /**
  * This {@linkplain AbstractIteratorExtractor} implementation extracts all
  * (meta-)data from ClinicalTrials and bundles it into a {@linkplain ClinicalTrialsVO}.
@@ -103,6 +104,8 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
                 // parse HTML from String
                 final Document viewPage = Jsoup.parse(response);
                 return new ClinicalTrialsVO(id, viewPage);
+            } catch (RuntimeException e) { // to skip runtime exception error i.e REC_CATCH_EXCEPTION
+                throw e;
             } catch (Exception e) { // NOPMD skip this page
                 return null;
             }

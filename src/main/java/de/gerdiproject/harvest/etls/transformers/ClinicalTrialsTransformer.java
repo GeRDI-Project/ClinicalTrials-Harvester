@@ -30,6 +30,7 @@ import org.jsoup.select.Elements;
 
 import de.gerdiproject.json.datacite.Title;
 import de.gerdiproject.json.datacite.abstr.AbstractDate;
+import de.gerdiproject.json.datacite.enums.ContributorType;
 import de.gerdiproject.json.datacite.enums.DateType;
 import de.gerdiproject.json.datacite.extension.generic.WebLink;
 import de.gerdiproject.json.datacite.Description;
@@ -62,11 +63,10 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         document.addTitles(getTitles(vo));
         document.addDescriptions(getDescription(vo));
         document.addDates(getDates(vo));
-        // TODO; REFACTOR CONTACTS like SUBJECTS see below
-        // document.addContributors(getSponsors(vo));
         document.addWebLinks(getWebLinkList(vo));
         document.addGeoLocations(getGeoLocations(vo));
 
+        document.addContributors(HtmlUtils.getObjects(viewPage, ClinicalTrialsConstants.OVERALL_CONTACT, this::parseContributor));
         document.addSubjects(HtmlUtils.getObjects(viewPage, ClinicalTrialsConstants.KEYWORD, this::parseSubject));
         document.addSubjects(HtmlUtils.getObjects(viewPage, ClinicalTrialsConstants.MESH_TERM, this::parseSubject));
         document.addSubjects(HtmlUtils.getObjects(viewPage, ClinicalTrialsConstants.OVERALL_STATUS, this::parseSubject));
@@ -82,14 +82,19 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
      */
     private Subject parseSubject(Element ele)
     {
-        return new Subject(ele.text());
+        return new Subject(ele.text(), null);
+    }
+
+    private Contributor parseContributor(Element ele)
+    {
+        return new Contributor(ele.text(), ContributorType.ContactPerson);
     }
 
     private FundingReference parseFunder(Element ele)
     {
         final String funderName = HtmlUtils.getString(ele, ClinicalTrialsConstants.AGENCY);
 
-        if(funderName != null)
+        if (funderName != null)
             return new FundingReference(funderName);
         else
             return null;
@@ -118,6 +123,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final List<Description> description = new LinkedList<>();
         // get the description
         final Element detailedDescription = vo.getViewPage().selectFirst(ClinicalTrialsConstants.DETAILED_DESCRIPTION);
+
         // verify that there is data
         if (detailedDescription != null)
             description.add(new Description(detailedDescription.wholeText(), null));
@@ -131,6 +137,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         // retrieve the first and last submitted date
         final String submissionDate = HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.STUDY_FIRST_SUBMITTED);
         final String lastSubmissionDate = HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.LAST_UPDATE_SUBMITTED);
+
         // verify that there are dates
         if (submissionDate != null)
             dates.add(new Date(submissionDate, DateType.Collected));
@@ -139,20 +146,6 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
             dates.add(new Date(lastSubmissionDate, DateType.Collected));
 
         return dates;
-    }
-
-    private List<Contributor> getSponsors(ClinicalTrialsVO vo)
-    {
-        final List<Contributor> overallContact = new LinkedList<>();
-        // retrieve the overall contact
-        final Elements overallContacts  = vo.getViewPage().select(ClinicalTrialsConstants.OVERALL_CONTACT);
-
-        for (Element contact : overallContacts) {
-            Contributor contrib = new Contributor(contact.text(), null);
-            overallContact.add(contrib);
-        }
-
-        return overallContact;
     }
 
     private List<WebLink> getWebLinkList(ClinicalTrialsVO vo)
@@ -181,11 +174,13 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     private List<GeoLocation> getGeoLocations(ClinicalTrialsVO vo)
     {
         final List<GeoLocation> geoLocations = new LinkedList<>();
-        // get the location; TODO: fetch all locations
-        final Element locationName = vo.getViewPage().selectFirst(ClinicalTrialsConstants.COUNTRY);
-        // verify that there is data
-        if (locationName != null)
-            geoLocations.add(new GeoLocation(locationName.text()));
+        // fetch all locations
+        final Elements locationNames = vo.getViewPage().select(ClinicalTrialsConstants.COUNTRY);
+
+        for (Element locationName : locationNames) {
+            GeoLocation geolocation = new GeoLocation(locationName.text());
+            geoLocations.add(geolocation);
+        }
 
         return geoLocations;
     }
