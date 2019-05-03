@@ -35,7 +35,6 @@ public class ClinicalTrialsConstants
     public static final String DETAILED_DESCRIPTION = "detailed_description";
     public static final String STUDY_FIRST_SUBMITTED = "study_first_submitted";
     public static final String STUDY_FIRST_POSTED = "study_first_posted";
-    public static final String LAST_UPDATE_SUBMITTED = "last_update_submitted";
     public static final String LAST_UPDATE_POSTED = "last_update_posted";
     public static final String KEYWORD = "keyword";
     public static final String MESH_TERM = "mesh_term";

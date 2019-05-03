@@ -129,10 +129,9 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     private List<AbstractDate> getDates(ClinicalTrialsVO vo)
     {
         final List<AbstractDate> dates = new LinkedList<>();
-        // retrieve the first and last submitted date
+        // retrieve the dates
         final String submissionDate = HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.STUDY_FIRST_SUBMITTED);
         final String FirstPostedDate = HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.STUDY_FIRST_POSTED);
-        final String lastSubmissionDate = HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.LAST_UPDATE_SUBMITTED);
         final String lastPostedDate = HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.LAST_UPDATE_POSTED);
 
         // verify that there are dates
@@ -141,9 +140,6 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
         if (FirstPostedDate != null)
             dates.add(new Date(FirstPostedDate, DateType.Available));
-
-        if (lastSubmissionDate != null)
-            dates.add(new Date(lastSubmissionDate, DateType.Submitted));
 
         if (lastPostedDate != null)
             dates.add(new Date(lastPostedDate, DateType.Updated));
