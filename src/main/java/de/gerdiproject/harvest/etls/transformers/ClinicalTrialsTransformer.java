@@ -61,7 +61,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         document.setLanguage(ClinicalTrialsConstants.LANGUAGE);
 
         document.addTitles(getTitles(vo));
-        document.addDescriptions(getDescription(vo));
+        document.addDescriptions(getDescriptions(vo));
         document.addDates(getDates(vo));
         document.addWebLinks(getWebLinkList(vo));
         document.addGeoLocations(getGeoLocations(vo));
@@ -75,11 +75,6 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         return document;
     }
 
-    /**
-     * Create a new Subject from an elements text
-     * @param ele
-     * @return
-     */
     private Subject parseSubject(Element ele)
     {
         return new Subject(ele.text(), null);
@@ -118,17 +113,17 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         return titleList;
     }
 
-    private List<Description> getDescription(ClinicalTrialsVO vo)
+    private List<Description> getDescriptions(ClinicalTrialsVO vo)
     {
-        final List<Description> description = new LinkedList<>();
+        final List<Description> descriptions = new LinkedList<>();
         // get the description
         final Element detailedDescription = vo.getViewPage().selectFirst(ClinicalTrialsConstants.DETAILED_DESCRIPTION);
 
         // verify that there is data
         if (detailedDescription != null)
-            description.add(new Description(detailedDescription.wholeText(), null));
+            descriptions.add(new Description(detailedDescription.wholeText(), null));
 
-        return description;
+        return descriptions;
     }
 
     private List<AbstractDate> getDates(ClinicalTrialsVO vo)
@@ -136,14 +131,22 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final List<AbstractDate> dates = new LinkedList<>();
         // retrieve the first and last submitted date
         final String submissionDate = HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.STUDY_FIRST_SUBMITTED);
+        final String FirstPostedDate = HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.STUDY_FIRST_POSTED);
         final String lastSubmissionDate = HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.LAST_UPDATE_SUBMITTED);
+        final String lastPostedDate = HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.LAST_UPDATE_POSTED);
 
         // verify that there are dates
         if (submissionDate != null)
-            dates.add(new Date(submissionDate, DateType.Collected));
+            dates.add(new Date(submissionDate, DateType.Submitted));
+
+        if (FirstPostedDate != null)
+            dates.add(new Date(FirstPostedDate, DateType.Available));
 
         if (lastSubmissionDate != null)
-            dates.add(new Date(lastSubmissionDate, DateType.Collected));
+            dates.add(new Date(lastSubmissionDate, DateType.Submitted));
+
+        if (lastPostedDate != null)
+            dates.add(new Date(lastPostedDate, DateType.Updated));
 
         return dates;
     }
@@ -152,18 +155,18 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     {
         final List<WebLink> webLinkList = new LinkedList<>();
         // retrieve the url,document links and logo url
-        final Elements linkElements = vo.getViewPage().select(ClinicalTrialsConstants.URL);
-        final Elements docElements = vo.getViewPage().select(ClinicalTrialsConstants.DOCUMENT_URL);
+        final Elements linkElements = vo.getViewPage().select(ClinicalTrialsConstants.STUDY_RECORD_DETAIL_URL);
+        final Elements docElements = vo.getViewPage().select(ClinicalTrialsConstants.VIEW_DOCUMENT_URL);
 
         for (Element linkElement : linkElements) {
             WebLink weblink = new WebLink(linkElement.text());
-            weblink.setName(ClinicalTrialsUrlConstants.URL_NAME);
+            weblink.setName(ClinicalTrialsUrlConstants.STUDY_RECORD_DETAIL);
             webLinkList.add(weblink);
         }
 
         for (Element docElement : docElements) {
             WebLink weblink = new WebLink(docElement.text());
-            weblink.setName(ClinicalTrialsUrlConstants.DOCUMENT_URL_NAME);
+            weblink.setName(ClinicalTrialsUrlConstants.VIEW_DOCUMENT);
             webLinkList.add(weblink);
         }
 
@@ -185,11 +188,4 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         return geoLocations;
     }
 
-    /**
-     * Creates a unique identifier for a document from ClinicalTrials.
-     *
-     * @param source the source object that contains all metadata that is needed
-     *
-     * @return a unique identifier of this document
-     */
 }

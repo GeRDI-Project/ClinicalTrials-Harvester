@@ -15,6 +15,7 @@
  */
 package de.gerdiproject.harvest.etls.extractors;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import de.gerdiproject.harvest.utils.data.HttpRequester;
@@ -104,9 +105,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
                 // parse HTML from String
                 final Document viewPage = Jsoup.parse(response);
                 return new ClinicalTrialsVO(id, viewPage);
-            } catch (RuntimeException e) { // to skip runtime exception error i.e REC_CATCH_EXCEPTION
-                throw e;
-            } catch (Exception e) { // NOPMD skip this page
+            } catch (IOException e) {  // NOPMD skip this page
                 return null;
             }
         }

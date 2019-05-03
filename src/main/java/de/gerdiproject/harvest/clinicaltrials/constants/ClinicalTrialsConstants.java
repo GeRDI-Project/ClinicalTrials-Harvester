@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * A static collection of constant parameters for configuring the ClinicalTrials Harvester.
- * @author komal Ahir
+ * @author Komal Ahir
  *
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -34,12 +34,14 @@ public class ClinicalTrialsConstants
     public static final String OFFICIAL_TITLE = "official_title";
     public static final String DETAILED_DESCRIPTION = "detailed_description";
     public static final String STUDY_FIRST_SUBMITTED = "study_first_submitted";
+    public static final String STUDY_FIRST_POSTED = "study_first_posted";
     public static final String LAST_UPDATE_SUBMITTED = "last_update_submitted";
+    public static final String LAST_UPDATE_POSTED = "last_update_posted";
     public static final String KEYWORD = "keyword";
     public static final String MESH_TERM = "mesh_term";
     public static final String SPONSORS = "sponsors";
-    public static final String URL = "url";
-    public static final String DOCUMENT_URL = "document_url";
+    public static final String STUDY_RECORD_DETAIL_URL = "url";
+    public static final String VIEW_DOCUMENT_URL = "document_url";
     public static final String COUNTRY = "country";
     public static final String OVERALL_STATUS = "overall_status";
     public static final String OVERALL_CONTACT = "overall_contact";
