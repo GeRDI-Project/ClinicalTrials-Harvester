@@ -33,7 +33,7 @@ public class ClinicalTrialsUrlConstants
     public static final String VIEW_URL = "https://clinicaltrials.gov/ct2/show/NCT%08d?displayxml=true";
 
     // NAMES
-    public static final String VIEW_DOCUMENT =  "View_Document";
+    public static final String VIEW_DOCUMENT =  "View Document";
     public static final String STUDY_RECORD_DETAIL = "Study Record Detail";
     public static final WebLink LOGO_WEB_LINK = createLogoWebLink();
 

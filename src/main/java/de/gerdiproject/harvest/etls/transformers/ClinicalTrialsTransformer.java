@@ -33,6 +33,7 @@ import de.gerdiproject.json.datacite.abstr.AbstractDate;
 import de.gerdiproject.json.datacite.enums.ContributorType;
 import de.gerdiproject.json.datacite.enums.DateType;
 import de.gerdiproject.json.datacite.extension.generic.WebLink;
+import de.gerdiproject.json.datacite.extension.generic.enums.WebLinkType;
 import de.gerdiproject.json.datacite.Description;
 import de.gerdiproject.json.datacite.GeoLocation;
 import de.gerdiproject.json.datacite.Subject;
@@ -131,15 +132,15 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final List<AbstractDate> dates = new LinkedList<>();
         // retrieve the dates
         final String submissionDate = HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.STUDY_FIRST_SUBMITTED);
-        final String FirstPostedDate = HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.STUDY_FIRST_POSTED);
+        final String firstPostedDate = HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.STUDY_FIRST_POSTED);
         final String lastPostedDate = HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.LAST_UPDATE_POSTED);
 
         // verify that there are dates
         if (submissionDate != null)
             dates.add(new Date(submissionDate, DateType.Submitted));
 
-        if (FirstPostedDate != null)
-            dates.add(new Date(FirstPostedDate, DateType.Available));
+        if (firstPostedDate != null)
+            dates.add(new Date(firstPostedDate, DateType.Available));
 
         if (lastPostedDate != null)
             dates.add(new Date(lastPostedDate, DateType.Updated));
@@ -157,12 +158,14 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         for (Element linkElement : linkElements) {
             WebLink weblink = new WebLink(linkElement.text());
             weblink.setName(ClinicalTrialsUrlConstants.STUDY_RECORD_DETAIL);
+            weblink.setType(WebLinkType.SourceURL);
             webLinkList.add(weblink);
         }
 
         for (Element docElement : docElements) {
             WebLink weblink = new WebLink(docElement.text());
             weblink.setName(ClinicalTrialsUrlConstants.VIEW_DOCUMENT);
+            weblink.setType(WebLinkType.ViewURL);
             webLinkList.add(weblink);
         }
 

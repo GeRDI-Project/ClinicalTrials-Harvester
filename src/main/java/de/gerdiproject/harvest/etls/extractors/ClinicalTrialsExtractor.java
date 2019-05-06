@@ -105,7 +105,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
                 // parse HTML from String
                 final Document viewPage = Jsoup.parse(response);
                 return new ClinicalTrialsVO(id, viewPage);
-            } catch (IOException e) {  // NOPMD skip this page
+            } catch (IOException e) {  // skip this page
                 return null;
             }
         }
