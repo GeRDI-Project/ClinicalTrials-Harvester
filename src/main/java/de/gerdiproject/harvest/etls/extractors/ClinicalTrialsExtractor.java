@@ -15,10 +15,21 @@
  */
 package de.gerdiproject.harvest.etls.extractors;
 
+import java.io.IOException;
 import java.util.Iterator;
 
-import de.gerdiproject.harvest.etls.AbstractETL;
 import de.gerdiproject.harvest.utils.data.HttpRequester;
+import de.gerdiproject.harvest.utils.data.enums.RestRequestType;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+import de.gerdiproject.harvest.clinicaltrials.constants.ClinicalTrialsConstants;
+import de.gerdiproject.harvest.clinicaltrials.constants.ClinicalTrialsUrlConstants;
+
+import de.gerdiproject.harvest.etls.AbstractETL;
+
+
 
 /**
  * This {@linkplain AbstractIteratorExtractor} implementation extracts all
@@ -30,10 +41,6 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
 {
     private final HttpRequester httpRequester;
 
-    private String version = null;
-    private int size = -1;
-
-
     /**
      * Simple constructor.
      */
@@ -42,36 +49,26 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
         this.httpRequester = new HttpRequester();
     }
 
-
     @Override
     public void init(AbstractETL<?, ?> etl)
     {
         super.init(etl);
 
         this.httpRequester.setCharset(etl.getCharset());
-
-        // TODO if possible, extract some metadata in order to determine the size and a version string
-        // final ClinicalTrialsETL specificEtl = (ClinicalTrialsETL) etl;
-        // this.version = ;
-        // this.size = ;
     }
-
 
     @Override
     public String getUniqueVersionString()
     {
-        return version;
+        // it's not feasible to calculate the hash, because there is no overall version hence null
+        return null;
     }
-
-
 
     @Override
     public int size()
     {
-        return size;
+        return ClinicalTrialsConstants.CLINICAL_TRIALS_DOC_COUNT;
     }
-
-
 
     @Override
     protected Iterator<ClinicalTrialsVO> extractAll() throws ExtractorException
@@ -79,27 +76,38 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
         return new ClinicalTrialsIterator();
     }
 
-
     /**
-     * TODO add a description here
+     * This class represents an {@linkplain Iterator} that iterates through
+     * {@linkplain ClinicalTrialsVO}s used for harvesting clinicalTrials datasets by
+     * trying out all IDs in a range of 0000 to 9999.
      *
      * @author Komal Ahir
      */
     private class ClinicalTrialsIterator implements Iterator<ClinicalTrialsVO>
     {
+        int id = 0;
+
         @Override
         public boolean hasNext()
         {
-            // TODO
-            return false;
+            return id < size();
         }
-
 
         @Override
         public ClinicalTrialsVO next()
         {
-            // TODO
-            return null;
+            final String url = String.format(ClinicalTrialsUrlConstants.VIEW_URL, id);
+            id++;
+
+            try {
+                // suppress expected warning messages by retrieving the string response first
+                final String response = httpRequester.getRestResponse(RestRequestType.GET, url, null);
+                // parse HTML from String
+                final Document viewPage = Jsoup.parse(response);
+                return new ClinicalTrialsVO(id, viewPage);
+            } catch (IOException e) {  // skip this page
+                return null;
+            }
         }
     }
 }

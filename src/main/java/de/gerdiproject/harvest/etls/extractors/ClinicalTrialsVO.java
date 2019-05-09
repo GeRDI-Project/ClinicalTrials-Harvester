@@ -15,7 +15,9 @@
  */
 package de.gerdiproject.harvest.etls.extractors;
 
-import lombok.Data;
+import org.jsoup.nodes.Document;
+
+import lombok.Value;
 
 /**
  * This class is a value object that contains all extracted (meta-) data from
@@ -23,8 +25,9 @@ import lombok.Data;
  *
  * @author Komal Ahir
  */
-@Data
+@Value
 public class ClinicalTrialsVO
 {
-    // TODO add fields here, or replace this class with whatever suits your needs
+    private int id;
+    private Document viewPage;
 }
