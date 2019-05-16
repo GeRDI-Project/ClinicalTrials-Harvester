@@ -37,23 +37,13 @@ import de.gerdiproject.harvest.utils.data.enums.RestRequestType;
  */
 public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalTrialsVO>
 {
-    private final HttpRequester httpRequester;
-
-
-    /**
-     * Simple constructor.
-     */
-    public ClinicalTrialsExtractor()
-    {
-        this.httpRequester = new HttpRequester();
-    }
+    protected final HttpRequester httpRequester = new HttpRequester();
 
 
     @Override
     public void init(final AbstractETL<?, ?> etl)
     {
         super.init(etl);
-
         this.httpRequester.setCharset(etl.getCharset());
     }
 
@@ -96,7 +86,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
      */
     private class ClinicalTrialsIterator implements Iterator<ClinicalTrialsVO>
     {
-        int id = 0;
+        private int id = 0; // NOPMD field is intentionally initialized with 0
 
 
         @Override

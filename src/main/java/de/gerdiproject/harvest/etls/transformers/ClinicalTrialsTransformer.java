@@ -106,11 +106,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     private FundingReference parseFunder(final Element ele)
     {
         final String funderName = HtmlUtils.getString(ele, ClinicalTrialsConstants.AGENCY);
-
-        if (funderName != null)
-            return new FundingReference(funderName);
-        else
-            return null;
+        return funderName == null ? null : new FundingReference(funderName);
     }
 
 
@@ -119,15 +115,15 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final List<Title> titleList = new LinkedList<>();
 
         // get the title
-        final Element brief_title = vo.getViewPage().selectFirst(ClinicalTrialsConstants.BRIEF_TITLE);
-        final Element official_title = vo.getViewPage().selectFirst(ClinicalTrialsConstants.OFFICIAL_TITLE);
+        final Element briefTitle = vo.getViewPage().selectFirst(ClinicalTrialsConstants.BRIEF_TITLE);
+        final Element officialTitle = vo.getViewPage().selectFirst(ClinicalTrialsConstants.OFFICIAL_TITLE);
 
         // verify that there is data
-        if (brief_title != null)
-            titleList.add(new Title(brief_title.text()));
+        if (briefTitle != null)
+            titleList.add(new Title(briefTitle.text()));
 
-        if (official_title != null)
-            titleList.add(new Title(official_title.text()));
+        if (officialTitle != null)
+            titleList.add(new Title(officialTitle.text()));
 
         return titleList;
     }
