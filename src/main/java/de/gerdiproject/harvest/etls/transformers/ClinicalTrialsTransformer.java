@@ -15,12 +15,6 @@
  */
 package de.gerdiproject.harvest.etls.transformers;
 
-import de.gerdiproject.harvest.clinicaltrials.constants.ClinicalTrialsUrlConstants;
-import de.gerdiproject.harvest.clinicaltrials.constants.ClinicalTrialsConstants;
-import de.gerdiproject.harvest.etls.extractors.ClinicalTrialsVO;
-import de.gerdiproject.harvest.utils.HtmlUtils;
-import de.gerdiproject.json.datacite.DataCiteJson;
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,18 +22,24 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import de.gerdiproject.harvest.clinicaltrials.constants.ClinicalTrialsConstants;
+import de.gerdiproject.harvest.clinicaltrials.constants.ClinicalTrialsUrlConstants;
+import de.gerdiproject.harvest.etls.AbstractETL;
+import de.gerdiproject.harvest.etls.extractors.ClinicalTrialsVO;
+import de.gerdiproject.harvest.utils.HtmlUtils;
+import de.gerdiproject.json.datacite.Contributor;
+import de.gerdiproject.json.datacite.DataCiteJson;
+import de.gerdiproject.json.datacite.Date;
+import de.gerdiproject.json.datacite.Description;
+import de.gerdiproject.json.datacite.FundingReference;
+import de.gerdiproject.json.datacite.GeoLocation;
+import de.gerdiproject.json.datacite.Subject;
 import de.gerdiproject.json.datacite.Title;
 import de.gerdiproject.json.datacite.abstr.AbstractDate;
 import de.gerdiproject.json.datacite.enums.ContributorType;
 import de.gerdiproject.json.datacite.enums.DateType;
 import de.gerdiproject.json.datacite.extension.generic.WebLink;
 import de.gerdiproject.json.datacite.extension.generic.enums.WebLinkType;
-import de.gerdiproject.json.datacite.Description;
-import de.gerdiproject.json.datacite.GeoLocation;
-import de.gerdiproject.json.datacite.Subject;
-import de.gerdiproject.json.datacite.Date;
-import de.gerdiproject.json.datacite.Contributor;
-import de.gerdiproject.json.datacite.FundingReference;
 
 
 /**
@@ -50,6 +50,20 @@ import de.gerdiproject.json.datacite.FundingReference;
  */
 public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<ClinicalTrialsVO, DataCiteJson>
 {
+    @Override
+    public void init(AbstractETL<?, ?> etl)
+    {
+        // nothing to retrieve from the ETL
+    }
+
+
+    @Override
+    public void clear()
+    {
+        // nothing to clean up
+    }
+    
+    
     @Override
     protected DataCiteJson transformElement(ClinicalTrialsVO vo) throws TransformerException
     {
@@ -76,15 +90,18 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         return document;
     }
 
+    
     private Subject parseSubject(Element ele)
     {
         return new Subject(ele.text(), null);
     }
 
+    
     private Contributor parseContributor(Element ele)
     {
         return new Contributor(ele.text(), ContributorType.ContactPerson);
     }
+    
 
     private FundingReference parseFunder(Element ele)
     {
@@ -96,6 +113,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
             return null;
     }
 
+    
     private List<Title> getTitles(ClinicalTrialsVO vo)
     {
         final List<Title> titleList = new LinkedList<>();
@@ -114,6 +132,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         return titleList;
     }
 
+    
     private List<Description> getDescriptions(ClinicalTrialsVO vo)
     {
         final List<Description> descriptions = new LinkedList<>();
@@ -126,6 +145,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
         return descriptions;
     }
+    
 
     private List<AbstractDate> getDates(ClinicalTrialsVO vo)
     {
@@ -147,6 +167,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
         return dates;
     }
+    
 
     private List<WebLink> getWebLinkList(ClinicalTrialsVO vo)
     {
@@ -172,6 +193,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         webLinkList.add(ClinicalTrialsUrlConstants.LOGO_WEB_LINK);
         return webLinkList;
     }
+    
 
     private List<GeoLocation> getGeoLocations(ClinicalTrialsVO vo)
     {
@@ -186,5 +208,4 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
         return geoLocations;
     }
-
 }

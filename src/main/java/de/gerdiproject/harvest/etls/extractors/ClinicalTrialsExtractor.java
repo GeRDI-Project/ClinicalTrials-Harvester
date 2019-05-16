@@ -18,16 +18,14 @@ package de.gerdiproject.harvest.etls.extractors;
 import java.io.IOException;
 import java.util.Iterator;
 
-import de.gerdiproject.harvest.utils.data.HttpRequester;
-import de.gerdiproject.harvest.utils.data.enums.RestRequestType;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import de.gerdiproject.harvest.clinicaltrials.constants.ClinicalTrialsConstants;
 import de.gerdiproject.harvest.clinicaltrials.constants.ClinicalTrialsUrlConstants;
-
 import de.gerdiproject.harvest.etls.AbstractETL;
+import de.gerdiproject.harvest.utils.data.HttpRequester;
+import de.gerdiproject.harvest.utils.data.enums.RestRequestType;
 
 
 
@@ -41,6 +39,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
 {
     private final HttpRequester httpRequester;
 
+    
     /**
      * Simple constructor.
      */
@@ -48,6 +47,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
     {
         this.httpRequester = new HttpRequester();
     }
+    
 
     @Override
     public void init(AbstractETL<?, ?> etl)
@@ -57,6 +57,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
         this.httpRequester.setCharset(etl.getCharset());
     }
 
+    
     @Override
     public String getUniqueVersionString()
     {
@@ -64,17 +65,27 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
         return null;
     }
 
+    
     @Override
     public int size()
     {
         return ClinicalTrialsConstants.CLINICAL_TRIALS_DOC_COUNT;
     }
+    
 
     @Override
     protected Iterator<ClinicalTrialsVO> extractAll() throws ExtractorException
     {
         return new ClinicalTrialsIterator();
     }
+
+    
+    @Override
+    public void clear()
+    {
+        // nothing to clean up
+    }
+    
 
     /**
      * This class represents an {@linkplain Iterator} that iterates through
@@ -86,12 +97,14 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
     private class ClinicalTrialsIterator implements Iterator<ClinicalTrialsVO>
     {
         int id = 0;
+        
 
         @Override
         public boolean hasNext()
         {
             return id < size();
         }
+        
 
         @Override
         public ClinicalTrialsVO next()

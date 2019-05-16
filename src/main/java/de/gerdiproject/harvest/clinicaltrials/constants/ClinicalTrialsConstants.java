@@ -20,13 +20,12 @@ import lombok.NoArgsConstructor;
 
 /**
  * A static collection of constant parameters for configuring the ClinicalTrials Harvester.
+ * 
  * @author Komal Ahir
- *
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ClinicalTrialsConstants
 {
-
     public static final String PROVIDER = "U.S. National Library of Medicine";
     public static final String LANGUAGE = "en";
     public static final String AGENCY = "agency";
