@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * A static collection of constant parameters for configuring the ClinicalTrials Harvester.
- * 
+ *
  * @author Komal Ahir
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

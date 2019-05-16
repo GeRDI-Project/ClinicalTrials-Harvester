@@ -39,7 +39,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
 {
     private final HttpRequester httpRequester;
 
-    
+
     /**
      * Simple constructor.
      */
@@ -47,17 +47,17 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
     {
         this.httpRequester = new HttpRequester();
     }
-    
+
 
     @Override
-    public void init(AbstractETL<?, ?> etl)
+    public void init(final AbstractETL<?, ?> etl)
     {
         super.init(etl);
 
         this.httpRequester.setCharset(etl.getCharset());
     }
 
-    
+
     @Override
     public String getUniqueVersionString()
     {
@@ -65,13 +65,13 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
         return null;
     }
 
-    
+
     @Override
     public int size()
     {
         return ClinicalTrialsConstants.CLINICAL_TRIALS_DOC_COUNT;
     }
-    
+
 
     @Override
     protected Iterator<ClinicalTrialsVO> extractAll() throws ExtractorException
@@ -79,13 +79,13 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
         return new ClinicalTrialsIterator();
     }
 
-    
+
     @Override
     public void clear()
     {
         // nothing to clean up
     }
-    
+
 
     /**
      * This class represents an {@linkplain Iterator} that iterates through
@@ -97,14 +97,14 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
     private class ClinicalTrialsIterator implements Iterator<ClinicalTrialsVO>
     {
         int id = 0;
-        
+
 
         @Override
         public boolean hasNext()
         {
             return id < size();
         }
-        
+
 
         @Override
         public ClinicalTrialsVO next()
@@ -118,7 +118,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
                 // parse HTML from String
                 final Document viewPage = Jsoup.parse(response);
                 return new ClinicalTrialsVO(id, viewPage);
-            } catch (IOException e) {  // skip this page
+            } catch (final IOException e) {  // skip this page
                 return null;
             }
         }

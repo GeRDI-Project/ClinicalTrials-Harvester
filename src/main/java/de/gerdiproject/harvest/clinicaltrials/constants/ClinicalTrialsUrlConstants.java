@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * A static collection of constant parameters for assembling ClinicalTrials URLs.
- * 
+ *
  * @author Komal Ahir
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -36,7 +36,7 @@ public class ClinicalTrialsUrlConstants
     public static final String STUDY_RECORD_DETAIL = "Study Record Detail";
     public static final WebLink LOGO_WEB_LINK = createLogoWebLink();
 
-    
+
     private static WebLink createLogoWebLink()
     {
         final WebLink logoLink = new WebLink("https://clinicaltrials.gov/ct2/html/images/ct.gov-nlm-nih-logo.png");
