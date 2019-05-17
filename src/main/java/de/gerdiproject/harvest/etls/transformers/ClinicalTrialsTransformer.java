@@ -158,7 +158,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         for (Element linkElement : linkElements) {
             WebLink weblink = new WebLink(linkElement.text());
             weblink.setName(ClinicalTrialsUrlConstants.STUDY_RECORD_DETAIL);
-            weblink.setType(WebLinkType.SourceURL);
+            weblink.setType(WebLinkType.ViewURL);
             webLinkList.add(weblink);
         }
 
