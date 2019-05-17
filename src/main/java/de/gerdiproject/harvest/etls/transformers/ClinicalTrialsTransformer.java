@@ -21,6 +21,9 @@ import de.gerdiproject.harvest.etls.extractors.ClinicalTrialsVO;
 import de.gerdiproject.harvest.utils.HtmlUtils;
 import de.gerdiproject.json.datacite.DataCiteJson;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -50,6 +53,7 @@ import de.gerdiproject.json.datacite.FundingReference;
  */
 public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<ClinicalTrialsVO, DataCiteJson>
 {
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy");
     @Override
     protected DataCiteJson transformElement(ClinicalTrialsVO vo) throws TransformerException
     {
@@ -72,6 +76,18 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         document.addSubjects(HtmlUtils.getObjects(viewPage, ClinicalTrialsConstants.MESH_TERM, this::parseSubject));
         document.addSubjects(HtmlUtils.getObjects(viewPage, ClinicalTrialsConstants.OVERALL_STATUS, this::parseSubject));
         document.addFundingReferences(HtmlUtils.getObjectsFromParent(viewPage, ClinicalTrialsConstants.SPONSORS, this::parseFunder));
+
+        // get publication year
+        Calendar cal = Calendar.getInstance();
+
+        try {
+            cal.setTime(dateFormat.parse(HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.STUDY_FIRST_POSTED)));
+            document.setPublicationYear(cal.get(Calendar.YEAR));
+
+        } catch (ParseException e) { //do nothing. just do not add the publication year if it does not exist
+            return null;
+        }
+
 
         return document;
     }
@@ -158,7 +174,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         for (Element linkElement : linkElements) {
             WebLink weblink = new WebLink(linkElement.text());
             weblink.setName(ClinicalTrialsUrlConstants.STUDY_RECORD_DETAIL);
-            weblink.setType(WebLinkType.SourceURL);
+            weblink.setType(WebLinkType.ViewURL);
             webLinkList.add(weblink);
         }
 
