@@ -32,6 +32,7 @@ import de.gerdiproject.json.datacite.Title;
 import de.gerdiproject.json.datacite.abstr.AbstractDate;
 import de.gerdiproject.json.datacite.enums.ContributorType;
 import de.gerdiproject.json.datacite.enums.DateType;
+import de.gerdiproject.json.datacite.extension.generic.ResearchData;
 import de.gerdiproject.json.datacite.extension.generic.WebLink;
 import de.gerdiproject.json.datacite.extension.generic.enums.WebLinkType;
 import de.gerdiproject.json.datacite.Description;
@@ -66,6 +67,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         document.addDates(getDates(vo));
         document.addWebLinks(getWebLinkList(vo));
         document.addGeoLocations(getGeoLocations(vo));
+        document.addResearchData(getResearchData(vo));
 
         document.addContributors(HtmlUtils.getObjects(viewPage, ClinicalTrialsConstants.OVERALL_CONTACT, this::parseContributor));
         document.addSubjects(HtmlUtils.getObjects(viewPage, ClinicalTrialsConstants.KEYWORD, this::parseSubject));
@@ -153,18 +155,10 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final List<WebLink> webLinkList = new LinkedList<>();
         // retrieve the url,document links and logo url
         final Elements linkElements = vo.getViewPage().select(ClinicalTrialsConstants.STUDY_RECORD_DETAIL_URL);
-        final Elements docElements = vo.getViewPage().select(ClinicalTrialsConstants.VIEW_DOCUMENT_URL);
 
         for (Element linkElement : linkElements) {
             WebLink weblink = new WebLink(linkElement.text());
             weblink.setName(ClinicalTrialsUrlConstants.STUDY_RECORD_DETAIL);
-            weblink.setType(WebLinkType.ViewURL);
-            webLinkList.add(weblink);
-        }
-
-        for (Element docElement : docElements) {
-            WebLink weblink = new WebLink(docElement.text());
-            weblink.setName(ClinicalTrialsUrlConstants.VIEW_DOCUMENT);
             weblink.setType(WebLinkType.ViewURL);
             webLinkList.add(weblink);
         }
@@ -186,5 +180,20 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
 
         return geoLocations;
     }
+
+    private List<ResearchData> getResearchData(ClinicalTrialsVO vo)
+    {
+        List<ResearchData> researchDatas = new LinkedList<>();
+        // fetch documents
+        final Elements docElements = vo.getViewPage().select(ClinicalTrialsConstants.VIEW_DOCUMENT_URL);
+
+        for (Element docElement : docElements) {
+            ResearchData researchData = new ResearchData(docElement.text(), null);
+            researchDatas.add(researchData);
+        }
+
+        return researchDatas;
+    }
+
 
 }
