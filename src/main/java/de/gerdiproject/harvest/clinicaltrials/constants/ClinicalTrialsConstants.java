@@ -44,6 +44,7 @@ public class ClinicalTrialsConstants
     public static final String COUNTRY = "country";
     public static final String OVERALL_STATUS = "overall_status";
     public static final String OVERALL_CONTACT = "overall_contact";
+    public static final String RESEARCH_DATA_LABEL = "PDF";
 
     public static final int CLINICAL_TRIALS_DOC_COUNT = 10000;
     public static final String NCT_ID = "nct_id";

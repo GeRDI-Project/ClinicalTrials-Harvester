@@ -188,7 +188,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         final Elements docElements = vo.getViewPage().select(ClinicalTrialsConstants.VIEW_DOCUMENT_URL);
 
         for (Element docElement : docElements) {
-            ResearchData researchData = new ResearchData(docElement.text(), null);
+            ResearchData researchData = new ResearchData(docElement.text(), ClinicalTrialsConstants.RESEARCH_DATA_LABEL);
             researchDatas.add(researchData);
         }
 
