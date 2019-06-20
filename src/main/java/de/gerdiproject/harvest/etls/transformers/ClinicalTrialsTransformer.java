@@ -28,6 +28,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+
 import de.gerdiproject.json.datacite.Title;
 import de.gerdiproject.json.datacite.abstr.AbstractDate;
 import de.gerdiproject.json.datacite.enums.ContributorType;
@@ -184,13 +185,16 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     private List<ResearchData> getResearchData(ClinicalTrialsVO vo)
     {
         List<ResearchData> researchDatas = new LinkedList<>();
-        // fetch documents
-        final Elements docElements = vo.getViewPage().select(ClinicalTrialsConstants.VIEW_DOCUMENT_URL);
+        // fetch research data documents
+        final Elements researchDataElements = vo.getViewPage().select(ClinicalTrialsConstants.VIEW_DOCUMENT_URL);
 
-        for (Element docElement : docElements) {
-            ResearchData researchData = new ResearchData(docElement.text(), ClinicalTrialsConstants.RESEARCH_DATA_LABEL);
+        for (Element researchDataElement : researchDataElements) {
+            String fileExtension = researchDataElement.text();
+            final String researchDataLabel = fileExtension.substring(fileExtension.lastIndexOf('.') + 1);
+            ResearchData researchData = new ResearchData(researchDataElement.text(), researchDataLabel);
             researchDatas.add(researchData);
         }
+
 
         return researchDatas;
     }
