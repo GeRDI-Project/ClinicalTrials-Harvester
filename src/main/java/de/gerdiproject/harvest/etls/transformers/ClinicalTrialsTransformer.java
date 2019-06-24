@@ -89,11 +89,6 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         } catch (ParseException e) { //do nothing. just do not add the publication year if it does not exist
             return null;
         }
-
-<<<<<<< HEAD
-=======
-
->>>>>>> 9afafed4022fd046ea2cd1d88ceeff6b768e6c35
         return document;
     }
 
@@ -172,19 +167,12 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     private List<WebLink> getWebLinkList(ClinicalTrialsVO vo)
     {
         final List<WebLink> webLinkList = new LinkedList<>();
-        // retrieve the url,document links and logo url
+        // retrieve the url, links and logo url
         final Elements linkElements = vo.getViewPage().select(ClinicalTrialsConstants.STUDY_RECORD_DETAIL_URL);
 
         for (Element linkElement : linkElements) {
             WebLink weblink = new WebLink(linkElement.text());
             weblink.setName(ClinicalTrialsUrlConstants.STUDY_RECORD_DETAIL);
-            weblink.setType(WebLinkType.ViewURL);
-            webLinkList.add(weblink);
-        }
-
-        for (Element docElement : docElements) {
-            WebLink weblink = new WebLink(docElement.text());
-            weblink.setName(ClinicalTrialsUrlConstants.VIEW_DOCUMENT);
             weblink.setType(WebLinkType.ViewURL);
             webLinkList.add(weblink);
         }
