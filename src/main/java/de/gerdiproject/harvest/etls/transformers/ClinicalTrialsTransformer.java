@@ -89,6 +89,7 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         } catch (ParseException e) { //do nothing. just do not add the publication year if it does not exist
             return null;
         }
+
         return document;
     }
 
