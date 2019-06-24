@@ -35,7 +35,7 @@ import de.gerdiproject.harvest.etls.AbstractETL;
  * This {@linkplain AbstractIteratorExtractor} implementation extracts all
  * (meta-)data from ClinicalTrials and bundles it into a {@linkplain ClinicalTrialsVO}.
  *
- * @author Komal Ahir
+ * @author Komal Ahir, Jan Frömberg
  */
 public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalTrialsVO>
 {
@@ -81,7 +81,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
      * {@linkplain ClinicalTrialsVO}s used for harvesting clinicalTrials datasets by
      * trying out all IDs in a range of 0000 to 9999.
      *
-     * @author Komal Ahir
+     * @author Komal Ahir, Jan Frömberg
      */
     private class ClinicalTrialsIterator implements Iterator<ClinicalTrialsVO>
     {
