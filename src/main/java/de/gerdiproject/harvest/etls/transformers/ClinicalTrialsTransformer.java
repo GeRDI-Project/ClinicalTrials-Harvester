@@ -90,6 +90,10 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
             return null;
         }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9afafed4022fd046ea2cd1d88ceeff6b768e6c35
         return document;
     }
 
