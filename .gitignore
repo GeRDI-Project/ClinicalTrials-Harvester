@@ -8,6 +8,7 @@
 /.settings/
 .project
 .classpath
+.metadata
 
 # NetBeans project files
 /project/
