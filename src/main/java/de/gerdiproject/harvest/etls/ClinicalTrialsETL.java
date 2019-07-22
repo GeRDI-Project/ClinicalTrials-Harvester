@@ -37,8 +37,4 @@ public class ClinicalTrialsETL extends StaticIteratorETL<ClinicalTrialsVO, DataC
         super(new ClinicalTrialsExtractor(), new ClinicalTrialsTransformer());
     }
 
-    // TODO 1. Check if StaticIteratorETL really suits your needs, or exchange it with any other AbstractETL.
-    // TODO 2. Exchange ClinicalTrialsVO with whatever is extracted from your DataProvider or populate it with fitting data.
-    // TODO 3. Override registerParameters() if you need to register additional ETL parameters.
-    // TODO 4. Override any other methods if needed.
 }
