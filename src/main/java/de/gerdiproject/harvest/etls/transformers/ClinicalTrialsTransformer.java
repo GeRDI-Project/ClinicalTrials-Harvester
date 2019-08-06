@@ -15,8 +15,12 @@
  */
 package de.gerdiproject.harvest.etls.transformers;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -38,6 +42,7 @@ import de.gerdiproject.json.datacite.Title;
 import de.gerdiproject.json.datacite.abstr.AbstractDate;
 import de.gerdiproject.json.datacite.enums.ContributorType;
 import de.gerdiproject.json.datacite.enums.DateType;
+import de.gerdiproject.json.datacite.extension.generic.ResearchData;
 import de.gerdiproject.json.datacite.extension.generic.WebLink;
 import de.gerdiproject.json.datacite.extension.generic.enums.WebLinkType;
 
@@ -46,10 +51,14 @@ import de.gerdiproject.json.datacite.extension.generic.enums.WebLinkType;
  * This transformer parses metadata from a {@linkplain ClinicalTrialsVO}
  * and creates {@linkplain DataCiteJson} objects from it.
  *
- * @author Komal Ahir
+ * @author Komal Ahir, Jan Frömberg
  */
 public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<ClinicalTrialsVO, DataCiteJson>
 {
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
+    private final Calendar cal = Calendar.getInstance();
+
+
     @Override
     public void init(final AbstractETL<?, ?> etl)
     {
@@ -80,12 +89,15 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         document.addDates(getDates(vo));
         document.addWebLinks(getWebLinkList(vo));
         document.addGeoLocations(getGeoLocations(vo));
+        document.addResearchData(getResearchData(vo));
 
         document.addContributors(HtmlUtils.getObjects(viewPage, ClinicalTrialsConstants.OVERALL_CONTACT, this::parseContributor));
         document.addSubjects(HtmlUtils.getObjects(viewPage, ClinicalTrialsConstants.KEYWORD, this::parseSubject));
         document.addSubjects(HtmlUtils.getObjects(viewPage, ClinicalTrialsConstants.MESH_TERM, this::parseSubject));
         document.addSubjects(HtmlUtils.getObjects(viewPage, ClinicalTrialsConstants.OVERALL_STATUS, this::parseSubject));
         document.addFundingReferences(HtmlUtils.getObjectsFromParent(viewPage, ClinicalTrialsConstants.SPONSORS, this::parseFunder));
+
+        document.setPublicationYear(getPublicationYear(vo));
 
         return document;
     }
@@ -168,20 +180,12 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
     private List<WebLink> getWebLinkList(final ClinicalTrialsVO vo)
     {
         final List<WebLink> webLinkList = new LinkedList<>();
-        // retrieve the url,document links and logo url
+        // retrieve the url, links and logo url
         final Elements linkElements = vo.getViewPage().select(ClinicalTrialsConstants.STUDY_RECORD_DETAIL_URL);
-        final Elements docElements = vo.getViewPage().select(ClinicalTrialsConstants.VIEW_DOCUMENT_URL);
 
         for (final Element linkElement : linkElements) {
             final WebLink weblink = new WebLink(linkElement.text());
             weblink.setName(ClinicalTrialsUrlConstants.STUDY_RECORD_DETAIL);
-            weblink.setType(WebLinkType.SourceURL);
-            webLinkList.add(weblink);
-        }
-
-        for (final Element docElement : docElements) {
-            final WebLink weblink = new WebLink(docElement.text());
-            weblink.setName(ClinicalTrialsUrlConstants.VIEW_DOCUMENT);
             weblink.setType(WebLinkType.ViewURL);
             webLinkList.add(weblink);
         }
@@ -203,5 +207,37 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         }
 
         return geoLocations;
+    }
+
+
+    private List<ResearchData> getResearchData(final ClinicalTrialsVO vo)
+    {
+        final List<ResearchData> researchDataList = new LinkedList<>();
+        // fetch research data documents
+        final Elements researchDataElements = vo.getViewPage().select(ClinicalTrialsConstants.VIEW_DOCUMENT_URL);
+
+        for (final Element researchDataElement : researchDataElements) {
+            final String fileExtension = researchDataElement.text();
+            final String researchDataLabel = fileExtension.substring(fileExtension.lastIndexOf('.') + 1);
+            final ResearchData researchData = new ResearchData(researchDataElement.text(), researchDataLabel);
+            researchDataList.add(researchData);
+        }
+
+        return researchDataList;
+    }
+
+
+    private Integer getPublicationYear(final ClinicalTrialsVO vo)
+    {
+        try {
+            final String dateString = HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.STUDY_FIRST_POSTED);
+            final java.util.Date parsedDate = dateFormat.parse(dateString);
+            cal.setTime(parsedDate);
+
+            return cal.get(Calendar.YEAR);
+
+        } catch (ParseException e) {
+            return null;
+        }
     }
 }
