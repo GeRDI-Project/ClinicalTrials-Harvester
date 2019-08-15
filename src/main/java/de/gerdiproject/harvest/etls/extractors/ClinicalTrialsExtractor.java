@@ -18,16 +18,14 @@ package de.gerdiproject.harvest.etls.extractors;
 import java.io.IOException;
 import java.util.Iterator;
 
-import de.gerdiproject.harvest.utils.data.HttpRequester;
-import de.gerdiproject.harvest.utils.data.enums.RestRequestType;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import de.gerdiproject.harvest.clinicaltrials.constants.ClinicalTrialsConstants;
 import de.gerdiproject.harvest.clinicaltrials.constants.ClinicalTrialsUrlConstants;
-
 import de.gerdiproject.harvest.etls.AbstractETL;
+import de.gerdiproject.harvest.utils.data.HttpRequester;
+import de.gerdiproject.harvest.utils.data.enums.RestRequestType;
 
 
 
@@ -39,23 +37,16 @@ import de.gerdiproject.harvest.etls.AbstractETL;
  */
 public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalTrialsVO>
 {
-    private final HttpRequester httpRequester;
+    protected final HttpRequester httpRequester = new HttpRequester();
 
-    /**
-     * Simple constructor.
-     */
-    public ClinicalTrialsExtractor()
-    {
-        this.httpRequester = new HttpRequester();
-    }
 
     @Override
-    public void init(AbstractETL<?, ?> etl)
+    public void init(final AbstractETL<?, ?> etl)
     {
         super.init(etl);
-
         this.httpRequester.setCharset(etl.getCharset());
     }
+
 
     @Override
     public String getUniqueVersionString()
@@ -64,17 +55,27 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
         return null;
     }
 
+
     @Override
     public int size()
     {
         return ClinicalTrialsConstants.CLINICAL_TRIALS_DOC_COUNT;
     }
 
+
     @Override
     protected Iterator<ClinicalTrialsVO> extractAll() throws ExtractorException
     {
         return new ClinicalTrialsIterator();
     }
+
+
+    @Override
+    public void clear()
+    {
+        // nothing to clean up
+    }
+
 
     /**
      * This class represents an {@linkplain Iterator} that iterates through
@@ -85,13 +86,15 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
      */
     private class ClinicalTrialsIterator implements Iterator<ClinicalTrialsVO>
     {
-        int id = 0;
+        private int id = 0; // NOPMD field is intentionally initialized with 0
+
 
         @Override
         public boolean hasNext()
         {
             return id < size();
         }
+
 
         @Override
         public ClinicalTrialsVO next()
@@ -105,7 +108,7 @@ public class ClinicalTrialsExtractor extends AbstractIteratorExtractor<ClinicalT
                 // parse HTML from String
                 final Document viewPage = Jsoup.parse(response);
                 return new ClinicalTrialsVO(id, viewPage);
-            } catch (IOException e) {  // skip this page
+            } catch (final IOException e) {  // skip this page
                 return null;
             }
         }

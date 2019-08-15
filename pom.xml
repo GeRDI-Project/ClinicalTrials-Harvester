@@ -5,16 +5,29 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>de.gerdi-project</groupId>
-		<artifactId>GeRDI-parent-harvester</artifactId>
-		<version>7.3.7</version>
+		<artifactId>GeRDI-parent</artifactId>
+		<version>4.0.0</version>
 	</parent>
-	
+
 	<artifactId>ClinicalTrials-HarvesterService</artifactId>
-    <packaging>war</packaging>
+	<version>7.4.0-SNAPSHOT</version>
+	<packaging>war</packaging>
 	<name>ClinicalTrials Harvester Service</name>
 	<description>This is a restful harvester for retrieving data from https://clinicaltrials.gov/ct2/resources/download</description>
 	<inceptionYear>2019</inceptionYear>
-  
+
+	<properties>
+		<restfulharvester.dependency.version>7.4.0</restfulharvester.dependency.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>de.gerdi-project</groupId>
+			<artifactId>RestfulHarvester-Library</artifactId>
+			<version>${restfulharvester.dependency.version}</version>
+		</dependency>
+	</dependencies>
+
 	<developers>
 		<developer>
 			<name>Komal Ahir</name>
@@ -23,7 +36,7 @@
 			<organizationUrl>www.tu-dresden.de/zih</organizationUrl>
 		</developer>
 	</developers>
-	
+
 	<!-- Define Sonatype repository for retrieving SNAPSHOT versions -->
 	<repositories>
 		<repository>

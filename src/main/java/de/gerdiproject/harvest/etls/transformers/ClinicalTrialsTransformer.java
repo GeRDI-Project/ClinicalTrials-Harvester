@@ -15,22 +15,29 @@
  */
 package de.gerdiproject.harvest.etls.transformers;
 
-import de.gerdiproject.harvest.clinicaltrials.constants.ClinicalTrialsUrlConstants;
-import de.gerdiproject.harvest.clinicaltrials.constants.ClinicalTrialsConstants;
-import de.gerdiproject.harvest.etls.extractors.ClinicalTrialsVO;
-import de.gerdiproject.harvest.utils.HtmlUtils;
-import de.gerdiproject.json.datacite.DataCiteJson;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import de.gerdiproject.harvest.clinicaltrials.constants.ClinicalTrialsConstants;
+import de.gerdiproject.harvest.clinicaltrials.constants.ClinicalTrialsUrlConstants;
+import de.gerdiproject.harvest.etls.AbstractETL;
+import de.gerdiproject.harvest.etls.extractors.ClinicalTrialsVO;
+import de.gerdiproject.harvest.utils.HtmlUtils;
+import de.gerdiproject.json.datacite.Contributor;
+import de.gerdiproject.json.datacite.DataCiteJson;
+import de.gerdiproject.json.datacite.Date;
+import de.gerdiproject.json.datacite.Description;
+import de.gerdiproject.json.datacite.FundingReference;
+import de.gerdiproject.json.datacite.GeoLocation;
+import de.gerdiproject.json.datacite.Subject;
 import de.gerdiproject.json.datacite.Title;
 import de.gerdiproject.json.datacite.abstr.AbstractDate;
 import de.gerdiproject.json.datacite.enums.ContributorType;
@@ -38,12 +45,6 @@ import de.gerdiproject.json.datacite.enums.DateType;
 import de.gerdiproject.json.datacite.extension.generic.ResearchData;
 import de.gerdiproject.json.datacite.extension.generic.WebLink;
 import de.gerdiproject.json.datacite.extension.generic.enums.WebLinkType;
-import de.gerdiproject.json.datacite.Description;
-import de.gerdiproject.json.datacite.GeoLocation;
-import de.gerdiproject.json.datacite.Subject;
-import de.gerdiproject.json.datacite.Date;
-import de.gerdiproject.json.datacite.Contributor;
-import de.gerdiproject.json.datacite.FundingReference;
 
 
 /**
@@ -54,9 +55,26 @@ import de.gerdiproject.json.datacite.FundingReference;
  */
 public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<ClinicalTrialsVO, DataCiteJson>
 {
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
+    private final Calendar cal = Calendar.getInstance();
+
+
     @Override
-    protected DataCiteJson transformElement(ClinicalTrialsVO vo) throws TransformerException
+    public void init(final AbstractETL<?, ?> etl)
+    {
+        // nothing to retrieve from the ETL
+    }
+
+
+    @Override
+    public void clear()
+    {
+        // nothing to clean up
+    }
+
+
+    @Override
+    protected DataCiteJson transformElement(final ClinicalTrialsVO vo) throws TransformerException
     {
         // create the document
         final Document viewPage = vo.getViewPage();
@@ -79,59 +97,51 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         document.addSubjects(HtmlUtils.getObjects(viewPage, ClinicalTrialsConstants.OVERALL_STATUS, this::parseSubject));
         document.addFundingReferences(HtmlUtils.getObjectsFromParent(viewPage, ClinicalTrialsConstants.SPONSORS, this::parseFunder));
 
-        // get publication year
-        Calendar cal = Calendar.getInstance();
-
-        try {
-            cal.setTime(dateFormat.parse(HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.STUDY_FIRST_POSTED)));
-            document.setPublicationYear(cal.get(Calendar.YEAR));
-
-        } catch (ParseException e) { //do nothing. just do not add the publication year if it does not exist
-            return null;
-        }
+        document.setPublicationYear(getPublicationYear(vo));
 
         return document;
     }
 
-    private Subject parseSubject(Element ele)
+
+    private Subject parseSubject(final Element ele)
     {
         return new Subject(ele.text(), null);
     }
 
-    private Contributor parseContributor(Element ele)
+
+    private Contributor parseContributor(final Element ele)
     {
         return new Contributor(ele.text(), ContributorType.ContactPerson);
     }
 
-    private FundingReference parseFunder(Element ele)
+
+    private FundingReference parseFunder(final Element ele)
     {
         final String funderName = HtmlUtils.getString(ele, ClinicalTrialsConstants.AGENCY);
-
-        if (funderName != null)
-            return new FundingReference(funderName);
-        else
-            return null;
+        return funderName == null ? null : new FundingReference(funderName);
     }
 
-    private List<Title> getTitles(ClinicalTrialsVO vo)
+
+    private List<Title> getTitles(final ClinicalTrialsVO vo)
     {
         final List<Title> titleList = new LinkedList<>();
 
         // get the title
-        final Element brief_title = vo.getViewPage().selectFirst(ClinicalTrialsConstants.BRIEF_TITLE);
-        final Element official_title = vo.getViewPage().selectFirst(ClinicalTrialsConstants.OFFICIAL_TITLE);
+        final Element briefTitle = vo.getViewPage().selectFirst(ClinicalTrialsConstants.BRIEF_TITLE);
+        final Element officialTitle = vo.getViewPage().selectFirst(ClinicalTrialsConstants.OFFICIAL_TITLE);
 
         // verify that there is data
-        if (brief_title != null)
-            titleList.add(new Title(brief_title.text()));
+        if (briefTitle != null)
+            titleList.add(new Title(briefTitle.text()));
 
-        if (official_title != null)
-            titleList.add(new Title(official_title.text()));
+        if (officialTitle != null)
+            titleList.add(new Title(officialTitle.text()));
 
         return titleList;
     }
 
-    private List<Description> getDescriptions(ClinicalTrialsVO vo)
+
+    private List<Description> getDescriptions(final ClinicalTrialsVO vo)
     {
         final List<Description> descriptions = new LinkedList<>();
         // get the description
@@ -144,7 +154,8 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         return descriptions;
     }
 
-    private List<AbstractDate> getDates(ClinicalTrialsVO vo)
+
+    private List<AbstractDate> getDates(final ClinicalTrialsVO vo)
     {
         final List<AbstractDate> dates = new LinkedList<>();
         // retrieve the dates
@@ -165,14 +176,15 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         return dates;
     }
 
-    private List<WebLink> getWebLinkList(ClinicalTrialsVO vo)
+
+    private List<WebLink> getWebLinkList(final ClinicalTrialsVO vo)
     {
         final List<WebLink> webLinkList = new LinkedList<>();
         // retrieve the url, links and logo url
         final Elements linkElements = vo.getViewPage().select(ClinicalTrialsConstants.STUDY_RECORD_DETAIL_URL);
 
-        for (Element linkElement : linkElements) {
-            WebLink weblink = new WebLink(linkElement.text());
+        for (final Element linkElement : linkElements) {
+            final WebLink weblink = new WebLink(linkElement.text());
             weblink.setName(ClinicalTrialsUrlConstants.STUDY_RECORD_DETAIL);
             weblink.setType(WebLinkType.ViewURL);
             webLinkList.add(weblink);
@@ -182,33 +194,50 @@ public class ClinicalTrialsTransformer extends AbstractIteratorTransformer<Clini
         return webLinkList;
     }
 
-    private List<GeoLocation> getGeoLocations(ClinicalTrialsVO vo)
+
+    private List<GeoLocation> getGeoLocations(final ClinicalTrialsVO vo)
     {
         final List<GeoLocation> geoLocations = new LinkedList<>();
         // fetch all locations
         final Elements locationNames = vo.getViewPage().select(ClinicalTrialsConstants.COUNTRY);
 
-        for (Element locationName : locationNames) {
-            GeoLocation geolocation = new GeoLocation(locationName.text());
+        for (final Element locationName : locationNames) {
+            final GeoLocation geolocation = new GeoLocation(locationName.text());
             geoLocations.add(geolocation);
         }
 
         return geoLocations;
     }
 
-    private List<ResearchData> getResearchData(ClinicalTrialsVO vo)
+
+    private List<ResearchData> getResearchData(final ClinicalTrialsVO vo)
     {
-        List<ResearchData> researchDataList = new LinkedList<>();
+        final List<ResearchData> researchDataList = new LinkedList<>();
         // fetch research data documents
         final Elements researchDataElements = vo.getViewPage().select(ClinicalTrialsConstants.VIEW_DOCUMENT_URL);
 
-        for (Element researchDataElement : researchDataElements) {
-            String fileExtension = researchDataElement.text();
+        for (final Element researchDataElement : researchDataElements) {
+            final String fileExtension = researchDataElement.text();
             final String researchDataLabel = fileExtension.substring(fileExtension.lastIndexOf('.') + 1);
-            ResearchData researchData = new ResearchData(researchDataElement.text(), researchDataLabel);
+            final ResearchData researchData = new ResearchData(researchDataElement.text(), researchDataLabel);
             researchDataList.add(researchData);
         }
 
         return researchDataList;
+    }
+
+
+    private Integer getPublicationYear(final ClinicalTrialsVO vo)
+    {
+        try {
+            final String dateString = HtmlUtils.getString(vo.getViewPage(), ClinicalTrialsConstants.STUDY_FIRST_POSTED);
+            final java.util.Date parsedDate = dateFormat.parse(dateString);
+            cal.setTime(parsedDate);
+
+            return cal.get(Calendar.YEAR);
+
+        } catch (ParseException e) {
+            return null;
+        }
     }
 }
