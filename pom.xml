@@ -10,14 +10,14 @@
 	</parent>
 
 	<artifactId>ClinicalTrials-HarvesterService</artifactId>
-	<version>8.1.0</version>
+	<version>8.1.1</version>
 	<packaging>war</packaging>
 	<name>ClinicalTrials Harvester Service</name>
 	<description>This is a restful harvester for retrieving data from https://clinicaltrials.gov/ct2/resources/download</description>
 	<inceptionYear>2019</inceptionYear>
 
 	<properties>
-		<restfulharvester.dependency.version>8.1.0</restfulharvester.dependency.version>
+		<restfulharvester.dependency.version>8.1.1</restfulharvester.dependency.version>
 	</properties>
 
 	<dependencies>
