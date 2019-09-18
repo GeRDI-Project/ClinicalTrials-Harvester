@@ -15,6 +15,7 @@
  */
 package de.gerdiproject.harvest.clinicaltrials.constants;
 
+import de.gerdiproject.json.datacite.nested.Publisher;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -26,7 +27,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ClinicalTrialsConstants
 {
-    public static final String PROVIDER = "U.S. National Library of Medicine";
+    public static final Publisher PROVIDER = new Publisher("U.S. National Library of Medicine");
     public static final String LANGUAGE = "en";
     public static final String AGENCY = "agency";
     public static final String BRIEF_TITLE = "brief_title";
