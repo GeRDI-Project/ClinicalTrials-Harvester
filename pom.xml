@@ -18,6 +18,14 @@
 
 	<properties>
 		<restfulharvester.dependency.version>8.1.1</restfulharvester.dependency.version>
+		<version.thorntail>2.5.0.Final</version.thorntail>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <failOnMissingWebXml>false</failOnMissingWebXml>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Specify the JDK builder image used to build your application. -->
+        <fabric8.generator.from>registry.access.redhat.com/redhat-openjdk-18/openjdk18-openshift:latest</fabric8.generator.from>
 	</properties>
 
 	<dependencies>
@@ -25,9 +33,50 @@
 			<groupId>de.gerdi-project</groupId>
 			<artifactId>RestfulHarvester-Library</artifactId>
 			<version>${restfulharvester.dependency.version}</version>
-		</dependency>
+		</dependency> 
+		<dependency>
+            <groupId>io.thorntail</groupId>
+            <artifactId>jaxrs</artifactId>
+        </dependency>         
 	</dependencies>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.thorntail</groupId>
+        <artifactId>bom-all</artifactId>
+        <version>${version.thorntail}</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  
+  <build>
+    <finalName>GeRDI-parent</finalName>
+    <plugins>
+      <plugin>
+        <groupId>io.thorntail</groupId>
+        <artifactId>thorntail-maven-plugin</artifactId>
+        <version>${version.thorntail}</version>
+        <configuration>
+          <properties>
+             <swarm.bind.address>127.0.0.1</swarm.bind.address>
+             <java.net.preferIPv4Stack>true</java.net.preferIPv4Stack>
+          </properties>
+        </configuration>
+        <executions>
+          <execution>
+           <id>package</id>
+            <goals>
+              <goal>package</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+    
 	<developers>
 		<developer>
 			<name>Komal Ahir</name>
